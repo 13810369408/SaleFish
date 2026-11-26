@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -90,7 +90,7 @@ public sealed partial class MainStage
     /// <summary>「退出钓鱼」= 去鱼店：把玩家和鱼护一起传送到鱼店，进入准备开店阶段。</summary>
     public void GoToShop()
     {
-        if (Phase != GamePhase.Ready) return;
+        if (Phase != GamePhase.ReadyFishing) return;
         if (_player != null && _shopSpawn != null) _player.GlobalPosition = _shopSpawn.GlobalPosition;
         if (_player != null && _camera != null)
             _camera.Position = new Vector2(_player.GlobalPosition.X, _camera.Position.Y);

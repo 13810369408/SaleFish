@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using SaleFish.Common;
 using SaleFish.Fishing;
 using SaleFish.Inventory;
@@ -65,7 +65,7 @@ public sealed partial class MainStage : Node2D
     public enum GamePhase
     {
         /// <summary>准备钓鱼（站在钓鱼点，空闲）：空手左键抛竿；「退出钓鱼」→ 传送到鱼店（准备开店）。</summary>
-        Ready,
+        ReadyFishing,
         /// <summary>正在钓鱼（蓄力 → 钓上/一竿结束/右键·菜单取消）。</summary>
         Fishing,
         /// <summary>自由移动：A/D 左右走，走回钓鱼点点击坐下 → Ready（鱼护随之搬回钓鱼区）。</summary>
@@ -77,9 +77,10 @@ public sealed partial class MainStage : Node2D
     }
 
     /// <summary>当前行为阶段（公开只读，测试断言用）。</summary>
-    public GamePhase Phase { get; private set; } = GamePhase.Ready;
+    public GamePhase Phase { get; private set; } = GamePhase.ReadyFishing;
 
-    /// <summary>切换行为阶段（同值跳过，幂等）。阶段会随存档保存（Fishing/Selling 是过程态，落盘记成 Ready）。</summary>
+    /// <summary>切换行为阶段（同值跳过，幂等）。阶段随存档保存（Fishing/Selling 是过程态，落盘记成准备钓鱼），
+    /// 并且**每次切到持久阶段就自动存档**（仅当有活动存档槽；直接运行场景/测试不写盘）。</summary>
     private void SetPhase(GamePhase next)
     {
         if (Phase == next) return;
@@ -88,11 +89,18 @@ public sealed partial class MainStage : Node2D
         {
             GamePhase.FreeMove => SavePhase.FreeMove,
             GamePhase.PrepareShop => SavePhase.PrepareShop,
-            _ => SavePhase.Ready,   // Ready / Fishing / Selling（过程态）
+            _ => SavePhase.ReadyFishing,   // 准备钓鱼 / Fishing / Selling（过程态）
         };
         // 鱼护跟着玩家所在区域走：开店在鱼店旁、坐下钓鱼时搬回钓鱼区原位。
         if (next == GamePhase.PrepareShop) PlaceFishKeepAtShop();
-        else if (next == GamePhase.Ready) ReturnFishKeepHome();
+        else if (next == GamePhase.ReadyFishing) ReturnFishKeepHome();
+
+        // 切阶段即自动存档：持久阶段（准备钓鱼 / 自由移动 / 准备开店）才存；
+        // 没有活动存档槽、或那个槽的文件已不存在（测试里删过 / 别处删掉）时不写盘，避免凭空造出存档。
+        if (next is GamePhase.ReadyFishing or GamePhase.FreeMove or GamePhase.PrepareShop
+            && SaveManager.ActiveSlot.Length > 0
+            && SaveService.Exists(SaveManager.ActiveSlot))
+            SaveManager.SaveNow();
     }
 
     /// <summary>存档阶段 → 运行时阶段（Selling 不落盘）。</summary>
@@ -100,7 +108,7 @@ public sealed partial class MainStage : Node2D
     {
         SavePhase.FreeMove => GamePhase.FreeMove,
         SavePhase.PrepareShop => GamePhase.PrepareShop,
-        _ => GamePhase.Ready,
+        _ => GamePhase.ReadyFishing,
     };
 
     /// <summary>钓上鱼时自动打开的仓库按钮（路径）：场景里的一个挂 WarehouseButton 组件的仓库开/关节点
@@ -268,19 +276,20 @@ public sealed partial class MainStage : Node2D
 
         InitShop();   // 鱼店/鱼护/价格板/鱼店 UI 接线（见 MainStage.Shop.cs）
 
-        // 开局阶段 = 存档里记的阶段（SaveManager.Phase，默认 FreeMove）：
-        //  新游戏 / 直接运行主关卡 = 自由移动；存档在鱼店 = 准备开店；存档坐在椅子上 = Ready。
-        SetPhase(FromSavePhase(SaveManager.Phase));
-        if (Phase == GamePhase.FreeMove) _status.Text = Localizer.T("status.freemove");
-
-        // 读档/续档：把存档里的玩家位置摆回来（新游戏 / 直接运行本场景 = null，保持场景默认出生点）。
+        // 读档/续档：**先**把存档里的玩家位置摆回来（新游戏 / 直接运行本场景 = null，保持默认出生点）。
         // 镜头一并横移到玩家 X——Ready 时镜头不跟随玩家，否则一进场可能看不到人。
+        // 顺序很重要：阶段切换会自动存档（SetPhase），必须在位置就位之后再切，否则会把出生点存回去。
         if (_player != null && SaveManager.ConsumePendingPlayerPosition() is { } savedPos)
         {
             _player.GlobalPosition = savedPos;
             if (_camera != null) _camera.Position = new Vector2(savedPos.X, _camera.Position.Y);
         }
         SaveManager.PlayerPosition = _player?.GlobalPosition;   // 首次保存即可带上位置（之后每帧刷新）
+
+        // 开局阶段 = 存档里记的阶段（SaveManager.Phase，默认 FreeMove）：
+        //  新游戏 / 直接运行主关卡 = 自由移动；存档在鱼店 = 准备开店；存档坐在椅子上 = 准备钓鱼。
+        SetPhase(FromSavePhase(SaveManager.Phase));
+        if (Phase == GamePhase.FreeMove) _status.Text = Localizer.T("status.freemove");
         RefreshButtons();
     }
 
@@ -390,7 +399,9 @@ public sealed partial class MainStage : Node2D
     /// 与真实 Caught 事件进入的是同一条路径。</summary>
     public void OnHookCaught(Fish fish)
     {
-        SetPhase(GamePhase.Ready);   // 钓上 = 一竿结束 → 退出「正在钓鱼」（此后仓库可正常开关/钓上自动开仓）
+        // 鱼店阶段（准备开店/开始卖鱼）忽略钩子事件：防止残留事件把阶段从鱼店拨回准备钓鱼（会把存档阶段写错）。
+        if (Phase is GamePhase.PrepareShop or GamePhase.Selling) return;
+        SetPhase(GamePhase.ReadyFishing);   // 钓上 = 一竿结束 → 退出「正在钓鱼」（此后仓库可正常开关/钓上自动开仓）
         SaveManager.NotifyCaught(fish.Def);   // 存档层记账：图鉴置位（全彩/真名）+ 累计钓获 +1
         TryAutoOpenWarehouse();   // 钓上：同时打开绑定的仓库按钮对应的仓库（仅打开，不关闭）
         var def = fish.Def?.ItemDef;
@@ -474,7 +485,7 @@ public sealed partial class MainStage : Node2D
     public void CancelCharging()
     {
         if (!_charging) return;
-        SetPhase(GamePhase.Ready);
+        SetPhase(GamePhase.ReadyFishing);
         _charging = false;
         _chargeElapsed = 0.0;
         _powerBar.Visible = false;
@@ -561,7 +572,9 @@ public sealed partial class MainStage : Node2D
     /// Finished 在每次一竿结束都会触发（含钓上后的 CatchFish → FinishRest，此时阶段已由 OnHookCaught 先退回）。</summary>
     public void OnHookFinished()
     {
-        SetPhase(GamePhase.Ready);   // 一竿结束（无论钓上与否）→ 退出「正在钓鱼」
+        // 鱼店阶段（准备开店/开始卖鱼）忽略钩子事件：否则残留的一竿结束会把阶段拨回准备钓鱼（存档阶段会写错）。
+        if (Phase is GamePhase.PrepareShop or GamePhase.Selling) return;
+        SetPhase(GamePhase.ReadyFishing);   // 一竿结束（无论钓上与否）→ 退出「正在钓鱼」
         _cameraFollowing = false;
         if (_camera != null)
         {
@@ -653,7 +666,7 @@ public sealed partial class MainStage : Node2D
     /// UpdatePowerBarPosition 每帧钉到玩家顶端）。钓鱼本身没有按钮了——空手左键抛竿/再点抛出。</summary>
     private void RefreshButtons()
     {
-        _exitFishButton.Visible = Phase == GamePhase.Ready;
+        _exitFishButton.Visible = Phase == GamePhase.ReadyFishing;
         _powerBar.Visible = _charging;
     }
 
@@ -740,7 +753,7 @@ public sealed partial class MainStage : Node2D
         if (_hook.Current == Hook.State.Sinking) { _hook.BeginReel(); return; }   // 落水后：收线
         if (_hook.IsBusy) return;                                                 // 飞行/收线/上钩中：点击无效
         if (_charging) { ThrowCast(); return; }                                   // 蓄力中：再点即抛出
-        if (Phase != GamePhase.Ready) return;                                     // 防御：只允许 Ready 抛竿
+        if (Phase != GamePhase.ReadyFishing) return;                                     // 防御：只允许 Ready 抛竿
         StartCharging();                                                          // 空闲：左键即抛竿
     }
 
@@ -824,7 +837,7 @@ public sealed partial class MainStage : Node2D
                 _player.GlobalPosition = new Vector2(_walkTargetX, _player.GlobalPosition.Y);
                 _player.Velocity = Vector2.Zero;
                 _walkingToSpot = false;
-                SetPhase(GamePhase.Ready);   // 走到钓鱼点 → 「准备钓鱼」
+                SetPhase(GamePhase.ReadyFishing);   // 走到钓鱼点 → 「准备钓鱼」
                 _status.Text = Localizer.T("status.ready_fish");
                 RefreshButtons();
             }

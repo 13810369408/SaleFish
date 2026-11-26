@@ -47,6 +47,8 @@ script = ExtResource("1_main")
 ExitFishingButtonOffset = Vector2(-200, -170)
 LineSagPeak = 0.7000000000000001
 ShowTestText = false
+MinCustomerCount = 8
+MaxCustomerCount = 12
 
 [node name="Scene" type="Sprite2D" parent="." unique_id=1489669053]
 position = Vector2(-1494, -168)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -32,6 +32,7 @@ public sealed partial class TestShop : Node
         TestStorageOptions();
         TestShopFlow();
         SaveService.Delete(_slot);
+        SaveManager.DetachActiveSlot();
         SaveManager.ShopPrices.Clear();
         GD.Print($"[ShopTest] PASS={_passed} FAIL={_failed}");
         GD.Print(_failed == 0 ? "[ShopTest] ALL PASSED" : "[ShopTest] HAS FAILURES");
@@ -169,7 +170,7 @@ public sealed partial class TestShop : Node
             exitButton != null && shopUi != null && startButton != null);
         if (exitButton == null || shopUi == null || startButton == null) return;
 
-        Check("开局：Ready + 「开始卖鱼」隐藏", _stage.Phase == Main.MainStage.GamePhase.Ready && !startButton.Visible);
+        Check("开局：Ready + 「开始卖鱼」隐藏", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing && !startButton.Visible);
 
         exitButton.EmitSignal(BaseButton.SignalName.Pressed);
         Check("点「退出钓鱼」→ 准备开店，按钮出现",
@@ -301,9 +302,9 @@ public sealed partial class TestShop : Node
         for (var i = 0; i < 3000; i++)
         {
             _stage.StepPlayerMovement(1.0 / 60.0);
-            if (_stage.Phase == Main.MainStage.GamePhase.Ready) break;
+            if (_stage.Phase == Main.MainStage.GamePhase.ReadyFishing) break;
         }
-        Check("自由移动点椅子：走向钓鱼点并进入 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("自由移动点椅子：走向钓鱼点并进入 Ready", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         Check("回到 Ready：鱼护搬回钓鱼区（离开鱼店位置）",
             keepSprite != null && keepSprite.GlobalPosition.DistanceTo(keepAtShopPos) > 10f);
     }

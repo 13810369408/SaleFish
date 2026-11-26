@@ -144,6 +144,50 @@ public sealed partial class TestMainStage : Node
         TestMouseWorldWithCamera();
         TestPlayerPositionRoundTrip();
         TestLoadKeepsWarehousesClosed();
+        TestLoadRestoresPhase();
+        TestPhaseChangeAutoSave();
+    }
+
+    /// <summary>读档还原阶段：存档时在「准备开店」，进场必须还是准备开店（而不是准备钓鱼）。</summary>
+    private void TestLoadRestoresPhase()
+    {
+        const string slot = "tst_phase_restore";
+        SaveManager.Phase = SavePhase.PrepareShop;
+        SaveManager.PlayerPosition = new Vector2(-560f, 60f);
+        SaveManager.SaveNow(slot);
+        SaveManager.Phase = SavePhase.ReadyFishing;   // 模拟「回到主界面后的内存状态」
+        Check("读档阶段前置：LoadSlot 成功", SaveManager.LoadSlot(slot));
+
+        var stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn")
+            .Instantiate<Main.MainStage>();
+        AddChild(stage);
+        Check("读档进场：阶段恢复为准备开店", stage.Phase == Main.MainStage.GamePhase.PrepareShop);
+        var player = stage.GetNodeOrNull<CharacterBody2D>("Player");
+        Check("读档进场：玩家在存档位置（鱼店落点）",
+            player != null && player.GlobalPosition.DistanceTo(new Vector2(-560f, 60f)) < 2f);
+        stage.QueueFree();
+        SaveService.Delete(slot);
+        SaveManager.DetachActiveSlot();
+    }
+
+    /// <summary>每次切换 GamePhase 自动存档：切到「准备开店」后，存档文件里的 Phase 立刻是 PrepareShop。</summary>
+    private void TestPhaseChangeAutoSave()
+    {
+        const string slot = "tst_autosave";
+        SaveManager.NewGame(slot);        // 建立活动存档槽（会写一次盘）
+        SaveManager.InFreeMove = false;   // 让即将进场的场景以「准备钓鱼」起步
+        var stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn")
+            .Instantiate<Main.MainStage>();
+        AddChild(stage);
+        var exitButton = stage.FindChild("ExitFishingButton", recursive: true, owned: false) as Button;
+        Check("自动存档前置：新场景处于准备钓鱼", stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
+        exitButton?.EmitSignal(BaseButton.SignalName.Pressed);   // → 准备开店（自动存档）
+        var saved = SaveService.Load(slot);
+        Check("切阶段自动存档：存档里的 Phase = PrepareShop",
+            saved != null && saved.Phase == (int)SavePhase.PrepareShop);
+        stage.QueueFree();
+        SaveService.Delete(slot);
+        SaveManager.DetachActiveSlot();
     }
 
     /// <summary>读档不恢复仓库的开关状态：存档时开着的箱子，读档后一律是关闭的（内容/位置照旧）。</summary>
@@ -162,6 +206,7 @@ public sealed partial class TestMainStage : Node
         Check("读档后鱼护关闭（开关状态不保存）", !keep.IsOpen);
         Check("读档后所有仓库都关闭", WarehouseButton.All.All(b => !b.IsOpen));
         SaveService.Delete(slot);
+        SaveManager.DetachActiveSlot();
     }
 
     /// <summary>玩家位置随存档保存 / 读档恢复：位置写进快照；读档先暂存，主关卡 _Ready 摆到玩家身上
@@ -183,6 +228,7 @@ public sealed partial class TestMainStage : Node
         Check("读档：玩家位置进入暂存区", pending is { } p && p.DistanceTo(new Vector2(432.5f, -12f)) < 0.01f);
         Check("暂存位置取一次即清空（不会重复摆）", SaveManager.ConsumePendingPlayerPosition() == null);
         SaveService.Delete(slot);
+        SaveManager.DetachActiveSlot();   // 别让后面的阶段切换把已删的槽又写回来
 
         // ---- 3. 进主关卡：_Ready 把暂存位置摆到玩家身上 ----
         SaveManager.Apply(new SaveFile { InFreeMove = true, PlayerX = 900f, PlayerY = 100f });
@@ -450,7 +496,7 @@ public sealed partial class TestMainStage : Node
     }
 
     /// <summary>
-    /// 钓鱼阶段状态机（GamePhase.Ready / Fishing）：开始蓄力 → 正在钓鱼，钓上或一竿结束 → 退回准备钓鱼；
+    /// 钓鱼阶段状态机（GamePhase.ReadyFishing / Fishing）：开始蓄力 → 正在钓鱼，钓上或一竿结束 → 退回准备钓鱼；
     /// 正在钓鱼期间点击仓库按钮被吞掉（不开仓库、不打断蓄力）；其余时间仓库按钮正常开关。
     /// 阶段迁移本身用公开的 OnHookCaught / OnHookFinished 直接驱动（真实事件链由 TestHookup/TestFishing 覆盖）。
     /// </summary>
@@ -458,7 +504,7 @@ public sealed partial class TestMainStage : Node
     {
         var hand = HeldItemController.Instance!;
         var btn = _stage.GetNodeOrNull<WarehouseButton>("FishKeep");
-        Check("状态机前置：初始为「准备钓鱼」", btn != null && _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("状态机前置：初始为「准备钓鱼」", btn != null && _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         if (btn == null) return;
         hand.DiscardHeld();
         btn.Close();   // 清理前一个用例留下的打开中仓库，从「仓库关着、空手」的干净状态开始
@@ -476,7 +522,7 @@ public sealed partial class TestMainStage : Node
 
         // ---- 3) 一竿结束（未钓上）→ 退回「准备钓鱼」，仓库按钮恢复 ----
         _stage.OnHookFinished();
-        Check("一竿结束（未钓上）：阶段退回「准备钓鱼」", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("一竿结束（未钓上）：阶段退回「准备钓鱼」", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         ClickSprite();
         Check("一竿结束后：仓库按钮恢复正常（能打开仓库）", FindWarehouse(visible: true) != null);
         btn.Close();
@@ -492,7 +538,7 @@ public sealed partial class TestMainStage : Node
         Check("钓上退出前置：场景鱼带背包形态", fish != null && fish.Def?.ItemDef != null);
         if (fish == null) return;
         _stage.OnHookCaught(fish);
-        Check("钓上：阶段退回「准备钓鱼」", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("钓上：阶段退回「准备钓鱼」", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         Check("钓上：绑定仓库自动打开（已非钓鱼状态可开）", FindWarehouse(visible: true) != null);
         hand.DiscardHeld();
         btn.Close();
@@ -519,7 +565,7 @@ public sealed partial class TestMainStage : Node
             && shopSpawn != null && keepAtShop != null);
         if (player == null || spot == null) return;
 
-        Check("准备开店前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("准备开店前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         Press(_exitFishButton);
         Check("点「退出钓鱼」：进入准备开店（PrepareShop）", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
         Check("准备开店状态写入存档标记（SaveManager.Phase = PrepareShop）", SaveManager.Phase == SavePhase.PrepareShop);

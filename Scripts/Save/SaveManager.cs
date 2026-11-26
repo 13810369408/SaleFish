@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -34,7 +34,7 @@ public sealed partial class SaveManager : Node
     public static bool InFreeMove
     {
         get => Phase == SavePhase.FreeMove;
-        set => Phase = value ? SavePhase.FreeMove : SavePhase.Ready;
+        set => Phase = value ? SavePhase.FreeMove : SavePhase.ReadyFishing;
     }
 
     /// <summary>卖鱼定价（FishDef.Id → 标价）：价格板填写，随存档保存。</summary>
@@ -134,7 +134,10 @@ public sealed partial class SaveManager : Node
         CloseAllWarehouses();
     }
 
-    /// <summary>把所有在管仓库关掉（隐藏；内容与记住的位置都保留）。读档后统一收起来。</summary>
+    /// <summary>测试/工具用：解除当前活动槽（之后的自动存档不再写盘）。</summary>
+    public static void DetachActiveSlot() => ActiveSlot = "";
+
+    /// <summary>关闭所有在管仓库（隐藏；内容与记住的位置都保留）。</summary>
     public static void CloseAllWarehouses()
     {
         foreach (var btn in WarehouseButton.All) btn.Close();
@@ -185,7 +188,7 @@ public sealed partial class SaveManager : Node
         // v4 起以 Phase 为准；旧档（Phase = -1）回退看 InFreeMove（true = 自由移动，false = 准备钓鱼）。
         Phase = data.Phase >= 0
             ? (SavePhase)data.Phase
-            : data.InFreeMove ? SavePhase.FreeMove : SavePhase.Ready;
+            : data.InFreeMove ? SavePhase.FreeMove : SavePhase.ReadyFishing;
         ShopPrices.Clear();
         if (data.ShopPrices != null)
             foreach (var p in data.ShopPrices)

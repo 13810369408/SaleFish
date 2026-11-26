@@ -13,7 +13,7 @@ namespace SaleFish.Save;
 /// <summary>存档里记录的玩家阶段（与 MainStage.GamePhase 对应；Fishing/Selling 是过程态，不落盘）。</summary>
 public enum SavePhase
 {
-    Ready = 0,
+    ReadyFishing = 0,
     FreeMove = 1,
     PrepareShop = 2,
 }

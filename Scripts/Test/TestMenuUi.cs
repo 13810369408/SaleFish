@@ -204,6 +204,13 @@ public sealed partial class TestMenuUi : Node
         Check("重开：内容保留（第 0 页左页=第 1 条背包物品贴图）",
             _menu.IsOpen && _left.Visible && _left.Texture == _f1.ItemDef!.Texture);
 
+        // ---- 6b. 打开菜单 = 暂停游戏时间；关闭 = 恢复 ----
+        Check("打开菜单：游戏时间已暂停", GetTree().Paused);
+        _menu.CloseMenu();
+        Check("关闭菜单：恢复时间流速", !GetTree().Paused);
+        Press(_menuButton);   // 重新打开，后续用例继续在「菜单打开」状态下跑
+        Check("重开菜单：再次暂停", GetTree().Paused);
+
         // ---- 7. 镜像开关：MirrorFish 控制徽章鱼图的 FlipH ----
         _menu.MirrorFish = true;
         _menu.RefreshPage();
@@ -236,6 +243,8 @@ public sealed partial class TestMenuUi : Node
             && _leftName.Text == "(空白)" && _rightName.Text == "(空白)"
             && _leftPrice.Text == "" && _rightPrice.Text == "");
         Check("清空图鉴：翻页按钮全部禁用", _prev.Disabled && _next.Disabled);
+
+        _menu.CloseMenu();   // 收尾恢复时间流速（菜单暂停不影响本进程退出）
     }
 
     /// <summary>派发按钮 pressed 信号（等价真实点击，headless 下不经过输入队列）；节点缺失时忽略（由前置断言暴露）。</summary>

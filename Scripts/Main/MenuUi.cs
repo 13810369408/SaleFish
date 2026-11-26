@@ -4,6 +4,7 @@ using Godot;
 using SaleFish.Fishing;
 using SaleFish.Localization;
 using SaleFish.Save;
+using SaleFish.View;
 
 namespace SaleFish.Main;
 
@@ -98,6 +99,9 @@ public sealed partial class MenuUi : Control
     public override void _Ready()
     {
         Visible = false;   // 运行时默认关闭菜单（场景里不强制写 visible，方便在编辑器里手动打开预览）
+        // 打开菜单会暂停整棵场景树（GetTree().Paused）：本节点必须 Always 才能继续响应按钮/设置弹窗，
+        // 否则暂停后连「关闭菜单」都点不动。
+        ProcessMode = ProcessModeEnum.Always;
         ResolveNodes();
         Localizer.LanguageChanged += OnLanguageChanged;
         FishEncyclopediaLog.Changed += OnLogChanged;   // 图鉴日志变化（见到新鱼/钓获）→ 实时重铺页面
@@ -150,19 +154,23 @@ public sealed partial class MenuUi : Control
         else OpenMenu();
     }
 
-    /// <summary>打开菜单（可见 + 刷新页面到当前页）。</summary>
+    /// <summary>打开菜单（可见 + 刷新页面到当前页）。同时**暂停游戏时间**：主关卡/鱼/全局手都停止推进，
+    /// 手持的物品因此不再跟随鼠标（菜单子树是 ProcessMode.Always，仍可交互）。</summary>
     public void OpenMenu()
     {
         Visible = true;
         RefreshPage();
+        GetTree().Paused = true;
         Opened?.Invoke();
     }
 
-    /// <summary>关闭菜单（只隐藏，页面停留当前页；下次打开仍在这一页）。顺带关掉设置弹窗（否则重开菜单会残留）。</summary>
+    /// <summary>关闭菜单（只隐藏，页面停留当前页；下次打开仍在这一页）。顺带关掉设置弹窗（否则重开菜单会残留），
+    /// 并**恢复游戏时间**。</summary>
     public void CloseMenu()
     {
         Visible = false;
         if (_settingsPanel != null) _settingsPanel.Visible = false;
+        GetTree().Paused = false;
         Closed?.Invoke();
     }
 
@@ -219,11 +227,14 @@ public sealed partial class MenuUi : Control
     public void QuitGame() => GetTree().Quit();
 
     /// <summary>「保存并返回主界面」（游戏内菜单退出按钮）：
-    /// 先存档当前进度（SaveManager.SaveNow：当前槽/默认槽，并写 lastslot），再切回主菜单——
-    /// 回到主菜单后「继续游戏」即可从刚保存的进度继续。</summary>
+    /// 先存档当前进度（SaveManager.SaveNow：当前槽/默认槽，并写 lastslot；手上的鱼也一起存进 Held），
+    /// 再**销毁手上的鱼**（全局手是 autoload 跨场景存活，不销毁会把鱼一路带到主界面/下一次开局；
+    /// 读档时由 ApplyHeld 重新生成）、恢复时间流速，最后切回主菜单。</summary>
     public void SaveAndExit()
     {
         SaveManager.SaveNow();
+        HeldItemController.Instance?.DiscardHeld();
+        GetTree().Paused = false;
         GetTree().ChangeSceneToFile("res://Scenes/MainMenu.tscn");
     }
 

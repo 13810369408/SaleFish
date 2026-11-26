@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Godot;
 using SaleFish.Fishing;
 using SaleFish.View;
@@ -133,7 +133,7 @@ public sealed partial class TestFishing : Node
         Check("蓄力中：处于「正在钓鱼」(GamePhase.Fishing)", _stage.Phase == Main.MainStage.GamePhase.Fishing);
         RightClick();
         Check("右键取消：蓄力条关闭", !_powerBar.Visible);
-        Check("右键取消：已退出「正在钓鱼」退回 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("右键取消：已退出「正在钓鱼」退回 Ready", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         Check("右键取消：钩子仍空闲（可再抛竿）", _hook.Current == Hook.State.Idle);
         ClickCast();   // 重新蓄力（让第 3 节的第二次点击仍作为「抛出」而非再一次开始蓄力）
 
@@ -144,7 +144,7 @@ public sealed partial class TestFishing : Node
         if (menuBtn != null) menuBtn.EmitSignal(BaseButton.SignalName.Pressed);
         Check("点「菜单」：菜单已打开", menuPanel != null && menuPanel.Visible);
         Check("点「菜单」：先取消抛竿（蓄力条关 + 退回 Ready）",
-            !_powerBar.Visible && _stage.Phase == Main.MainStage.GamePhase.Ready);
+            !_powerBar.Visible && _stage.Phase == Main.MainStage.GamePhase.ReadyFishing);
         if (menuBtn != null) menuBtn.EmitSignal(BaseButton.SignalName.Pressed);   // 关掉菜单，继续第 3 节
         ClickCast();   // 重新蓄力（让第 3 节的第二次点击仍作为「抛出」）
 
