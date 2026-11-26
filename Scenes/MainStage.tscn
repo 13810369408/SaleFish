@@ -36,6 +36,7 @@ radius = 8.0
 
 [node name="MainStage" type="Node2D" unique_id=1128462316]
 script = ExtResource("1_main")
+ExitFishingButtonOffset = Vector2(-200, -170)
 LineSagPeak = 0.7000000000000001
 ShowTestText = false
 
