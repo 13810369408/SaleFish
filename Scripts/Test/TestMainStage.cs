@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿using System.Linq;
+using Godot;
 using SaleFish.Common;
 using SaleFish.Fishing;
 using SaleFish.Inventory;
@@ -142,6 +143,25 @@ public sealed partial class TestMainStage : Node
         TestShopTeleportAndFishSpot();
         TestMouseWorldWithCamera();
         TestPlayerPositionRoundTrip();
+        TestLoadKeepsWarehousesClosed();
+    }
+
+    /// <summary>读档不恢复仓库的开关状态：存档时开着的箱子，读档后一律是关闭的（内容/位置照旧）。</summary>
+    private void TestLoadKeepsWarehousesClosed()
+    {
+        const string slot = "tst_open_warehouses";
+        var keep = _stage.GetNodeOrNull<WarehouseButton>("FishKeep");
+        Check("读档关箱前置：鱼护按钮存在", keep != null);
+        if (keep == null) return;
+
+        keep.Open();
+        Check("存档前鱼护是打开的", keep.IsOpen);
+        SaveManager.SaveNow(slot);
+        SaveManager.LoadSlot(slot);
+        SaveManager.ApplyPendingWarehouses();
+        Check("读档后鱼护关闭（开关状态不保存）", !keep.IsOpen);
+        Check("读档后所有仓库都关闭", WarehouseButton.All.All(b => !b.IsOpen));
+        SaveService.Delete(slot);
     }
 
     /// <summary>玩家位置随存档保存 / 读档恢复：位置写进快照；读档先暂存，主关卡 _Ready 摆到玩家身上

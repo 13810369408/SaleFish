@@ -120,14 +120,24 @@ public sealed partial class SaveManager : Node
         SaveNow(slot);
     }
 
-    /// <summary>主关卡 _Ready 调用：把读档暂存的仓库内容铺到场景（此时场景里仓库按钮已注册）；没有暂存则不动。</summary>
+    /// <summary>主关卡 _Ready 调用：把读档暂存的仓库内容铺到场景（此时场景里仓库按钮已注册）；没有暂存则不动。
+    /// 铺完（或没有暂存）都会把所有仓库**关掉** —— 开/关状态不随存档保存，读档一律从「全部关闭」开始。</summary>
     public static void ApplyPendingWarehouses()
     {
         var data = _pendingWarehouses;
         _pendingWarehouses = null;
-        if (data == null) return;
-        ClearWarehouses();
-        foreach (var ws in data) ApplyWarehouse(ws);
+        if (data != null)
+        {
+            ClearWarehouses();
+            foreach (var ws in data) ApplyWarehouse(ws);
+        }
+        CloseAllWarehouses();
+    }
+
+    /// <summary>把所有在管仓库关掉（隐藏；内容与记住的位置都保留）。读档后统一收起来。</summary>
+    public static void CloseAllWarehouses()
+    {
+        foreach (var btn in WarehouseButton.All) btn.Close();
     }
 
     /// <summary>组装当前状态成 SaveFile（不落盘；保存内容 / 测试直接可用）。</summary>
@@ -152,7 +162,8 @@ public sealed partial class SaveManager : Node
         };
     }
 
-    /// <summary>把一份存档还原进当前运行态（含场景相关的仓库/手持——仅当场景就绪时调用；测试也可直接驱动）。</summary>
+    /// <summary>把一份存档还原进当前运行态（含场景相关的仓库/手持——仅当场景就绪时调用；测试也可直接驱动）。
+    /// 还原后所有仓库一律关闭（开/关状态不保存）。</summary>
     public static void Apply(SaveFile data)
     {
         if (data == null) return;
@@ -162,6 +173,7 @@ public sealed partial class SaveManager : Node
         if (data.Warehouses != null)
             foreach (var ws in data.Warehouses)
                 ApplyWarehouse(ws);
+        CloseAllWarehouses();
     }
 
     /// <summary>与场景无关的还原（语言/金币/钓获/图鉴）：主菜单读档前即可用。</summary>
