@@ -4,5 +4,5 @@
 
 [resource]
 script = ExtResource("1_script")
-Id = 2
-DisplayName = "小型"
+Id = 13
+DisplayName = "防御"

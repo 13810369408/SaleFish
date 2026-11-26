@@ -4,5 +4,5 @@
 
 [resource]
 script = ExtResource("1_script")
-Id = 3
-DisplayName = "中型"
+Id = 18
+DisplayName = "诅咒"

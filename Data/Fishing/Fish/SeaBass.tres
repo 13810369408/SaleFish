@@ -9,24 +9,22 @@
 [ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="7_shake"]
 [ext_resource type="SpriteFrames" uid="uid://cjf0ueu7d0fb5" path="res://Assets/Fish/SeaBass/SeaBassAnim.tres" id="7_y2lgk"]
 [ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="8_fx"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/Large.tres" id="9_tag"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/UltraSmall.tres" id="10_livebait1"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/Small.tres" id="11_livebait2"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Delicious.tres" id="9_del"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Attack.tres" id="10_atk"]
 
 [resource]
 script = ExtResource("1_script")
 Id = 10
 DisplayName = "海鲈鱼"
 Size = 3
-SellPrice = 220.0
 ItemDef = ExtResource("4_item")
 SpriteFrames = ExtResource("7_y2lgk")
 StrugglePlaySpeed = 1.5
 ExhaustedPlaySpeed = 0.5
 Hooks = [ExtResource("2_hook")]
 Baits = [ExtResource("3_bait")]
-Tags = [ExtResource("9_tag")]
-LiveBaitTags = [ExtResource("10_livebait1"), ExtResource("11_livebait2")]
+Tags = [ExtResource("9_del"), ExtResource("10_atk")]
+LiveBaitTags = [ExtResource("9_del")]
 MaxStamina = 20.0
 MaxEndurance = 15.0
 PullSpeed = 170.0

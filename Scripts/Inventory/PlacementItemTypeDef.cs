@@ -24,6 +24,10 @@ public sealed partial class PlacementItemTypeDef : Resource
     /// <summary>显示名。</summary>
     [Export] public string DisplayName = "";
 
+    /// <summary>售价（实际价值）：卖鱼时顾客用它判断「玩家标价是否不高于实际价值」，也是打折概率曲线
+    /// ((0.7×本值 − 标价) / (0.7×本值))² 的基准。非鱼物品也可以填，方便以后出现其他可卖物。</summary>
+    [Export] public int SellPrice;
+
     /// <summary>占格形状图案：每个字符串一行，'X'/'x'/'#' 为占用格，其余为空白。
     /// 例：T 形 = { "XXX", ".X." }，2×2 方块 = { "XX", "XX" }。
     /// </summary>

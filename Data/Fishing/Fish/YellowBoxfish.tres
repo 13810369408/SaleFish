@@ -9,14 +9,14 @@
 [ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="6_struggle"]
 [ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="7_shake"]
 [ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="8_fx"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/Small.tres" id="9_tag"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Poisonous.tres" id="9_tag"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Defense.tres" id="10_tag2"]
 
 [resource]
 script = ExtResource("1_script")
 Id = 11
 DisplayName = "角箱魨"
 Size = 1
-SellPrice = 150.0
 ItemDef = ExtResource("4_item")
 SpriteFrames = ExtResource("5_klaxj")
 NormalPlaySpeed = 0.8
@@ -24,7 +24,7 @@ StrugglePlaySpeed = 1.2
 ExhaustedPlaySpeed = 0.4
 Hooks = [ExtResource("2_hook")]
 Baits = [ExtResource("3_bait")]
-Tags = [ExtResource("9_tag")]
+Tags = [ExtResource("9_tag"), ExtResource("10_tag2")]
 MaxEndurance = 12.0
 PullSpeed = 70.0
 BehaviorStrategy = ExtResource("5_behavior")

@@ -273,10 +273,10 @@ public sealed partial class TestMenuUi : Node
         {
             Id = id,
             DisplayName = name,
-            SellPrice = price,
             Size = size,
             SpriteFrames = frames,
-            ItemDef = withImage ? new PlacementItemTypeDef { DisplayName = name, Texture = tex } : null,
+            // 价值已移到物品定义上（FishDef 不再自带售价）
+            ItemDef = withImage ? new PlacementItemTypeDef { DisplayName = name, Texture = tex, SellPrice = (int)price } : null,
         };
     }
 

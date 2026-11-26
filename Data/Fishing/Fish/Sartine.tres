@@ -8,7 +8,7 @@
 [ext_resource type="Resource" path="res://Data/Fishing/Strategies/ClassicBehavior.tres" id="6_behavior_strategy"]
 [ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="7_bekis"]
 [ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="7_struggle"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/UltraSmall.tres" id="7_uawo0"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Delicious.tres" id="7_tag"]
 [ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="8_u337y"]
 
 [resource]
@@ -16,7 +16,6 @@ script = ExtResource("1_script")
 Id = 1
 DisplayName = "沙丁鱼"
 LocalizationKey = "fish.sartine"
-SellPrice = 50.0
 ItemDef = ExtResource("4_5cet1")
 SpriteFrames = ExtResource("5_fhgvs")
 StrugglePlaySpeed = 2.0
@@ -24,7 +23,7 @@ ExhaustedPlaySpeed = 0.5
 MouthOffset = Vector2(0, 6)
 Hooks = [ExtResource("3_hook")]
 Baits = [ExtResource("4_bait")]
-Tags = [ExtResource("7_uawo0")]
+Tags = [ExtResource("7_tag")]
 MaxStamina = 8.0
 MaxEndurance = 8.0
 PullSpeed = 90.0

@@ -35,7 +35,7 @@ public enum FishSize
 /// 用鱼 A 当饵鱼时，A.Tags 与目标鱼 B.LiveBaitTags 有交集 → 咬钩。
 ///
 /// 上钩后的背包形态：直接引用一个 PlacementItemTypeDef（占格形状 / 贴图 / 显示参数全部复用），
-/// 入库时用 ItemDef.ToItem() 生成物品；鱼定义自身不再重复轮廓数据。SellPrice 为售价。
+/// 入库时用 ItemDef.ToItem() 生成物品；鱼定义自身不再重复轮廓数据。
 /// 在 `res://Data/Fishing/Fish/` 下新建 Resource 并选本类即可配置一种鱼。
 ///
 /// **策略槽（一条鱼的两种行为，每鱼种可单独写）**——在槽里「快速载入→新建」选一个策略类：
@@ -74,10 +74,9 @@ public partial class FishDef : Resource
         => LocalizationKey.Length > 0 ? Localizer.Lookup(LocalizationKey) ?? DisplayName
                                       : DisplayName;
 
-    /// <summary>售价（卖出价格）。</summary>
-    [Export] public float SellPrice;
-
-    /// <summary>背包形态定义：入库物品的占格形状 / 贴图 / 显示参数；null = 该鱼暂不能入库。</summary>
+    /// <summary>背包形态定义：入库物品的占格形状 / 贴图 / 显示参数；null = 该鱼暂不能入库。
+    /// 售价（实际价值）不在这里，而是写在 <see cref="PlacementItemTypeDef.SellPrice"/> 上
+    /// （以后还会有其他有价值的东西，价值属于"物品"而不是"鱼"）。</summary>
     [Export] public PlacementItemTypeDef? ItemDef;
 
     [ExportCategory("动画")]

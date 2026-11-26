@@ -43,7 +43,7 @@ public sealed partial class TestFishingDefs : Node
         Check("Id 默认 0（五种一致）", hookDef.Id == 0 && baitDef.Id == 0 && sinkerDef.Id == 0 && fishDef.Id == 0 && lineDef.Id == 0);
         Check("DisplayName 默认空（五种一致）", hookDef.DisplayName == "" && baitDef.DisplayName == "" && sinkerDef.DisplayName == "" && fishDef.DisplayName == "" && lineDef.DisplayName == "");
         Check("Texture 默认空（钩/饵/配重）", hookDef.Texture == null && baitDef.Texture == null && sinkerDef.Texture == null);
-        Check("FishDef 默认售价 = 0", fishDef.SellPrice == 0f);
+        Check("FishDef 不再自带售价（价值已移到物品定义上）", new PlacementItemTypeDef().SellPrice == 0);
         Check("FishDef 默认无背包形态引用", fishDef.ItemDef == null);
         Check("FishDef 默认三个匹配数组全空（空 = 不能钓）",
             fishDef.Hooks.Length == 0 && fishDef.Baits.Length == 0 && fishDef.LiveBaitTags.Length == 0);
@@ -87,7 +87,7 @@ public sealed partial class TestFishingDefs : Node
         // 下面断言与检查名对齐当前数据（数据归属用户，测试跟随）。
         var carp = ResourceLoader.Load<FishDef>("res://Data/Fishing/Fish/Sartine.tres");
         Check("Sartine.tres（原 carp.tres，已改名）可加载为 FishDef", carp != null && carp.DisplayName == "沙丁鱼");
-        Check("沙丁鱼售价 = 50", carp != null && carp.SellPrice == 50f);
+        Check("沙丁鱼价值 = 50（写在物品定义 SartineItem 上）", carp?.ItemDef?.SellPrice == 50);
         Check("沙丁鱼上钩数值 = 体力8/耐力8/拖速90（沙丁鱼弱而快，按习性下调）",
             carp != null && carp.MaxStamina == 8f && carp.MaxEndurance == 8f && carp.PullSpeed == 90f);
         Check("沙丁鱼背包形态引用 SartineItem.tres（两格长条，ToItem 可入库）",
@@ -95,21 +95,21 @@ public sealed partial class TestFishingDefs : Node
         Check("沙丁鱼 Hooks[0] 引用了 basic_hook", carp is { Hooks.Length: > 0 } && ReferenceEquals(carp.Hooks[0], basicHook));
         Check("沙丁鱼 Baits[0] 引用了 worm", carp is { Baits.Length: > 0 } && ReferenceEquals(carp.Baits[0], worm));
         Check("沙丁鱼 LiveBaitTags 留空（没有鱼饵鱼能钓沙丁鱼）", carp != null && carp.LiveBaitTags.Length == 0);
-        Check("沙丁鱼 Tags 引用超小型标签（鱼可当饵鱼被更大鱼咬）",
-            carp != null && carp.Tags.Length == 1 && carp.Tags[0].DisplayName == "超小型");
+        Check("沙丁鱼 Tags 引用「美味」标签（鱼可当饵鱼被更大鱼咬）",
+            carp != null && carp.Tags.Length == 1 && carp.Tags[0].DisplayName == "美味");
 
         // ---- 5. 饵鱼匹配走标签：饵鱼自身 Tags 与目标鱼 LiveBaitTags 求交集，命中即咬 ----
-        var ultraSmall = ResourceLoader.Load<FishTagDef>("res://Data/Fishing/Tags/UltraSmall.tres");
-        Check("ultra_small.tres 可加载为 FishTagDef", ultraSmall != null && ultraSmall.DisplayName == "超小型");
-        var minnow = new FishDef { Id = 2, DisplayName = "沙丁鱼", SellPrice = 5f, Tags = new[] { ultraSmall! } };
-        var pike = new FishDef { Id = 3, DisplayName = "海鲈鱼", SellPrice = 80f, LiveBaitTags = new[] { ultraSmall! } };
-        Check("饵鱼标签可挂到鱼自身 Tags（沙丁鱼 = 超小型）",
-            minnow.Tags.Length == 1 && ReferenceEquals(minnow.Tags[0], ultraSmall));
-        Check("捕食者 LiveBaitTags 引用标签（海鲈鱼 = 超小型）",
-            pike.LiveBaitTags.Length == 1 && ReferenceEquals(pike.LiveBaitTags[0], ultraSmall));
-        Check("标签匹配：沙丁鱼（超小型）能钓海鲈鱼（吃超小型）",
+        var delicious = ResourceLoader.Load<FishTagDef>("res://Data/Fishing/Tags/Delicious.tres");
+        Check("Delicious.tres 可加载为 FishTagDef（美味）", delicious != null && delicious.DisplayName == "美味");
+        var minnow = new FishDef { Id = 2, DisplayName = "沙丁鱼", Tags = new[] { delicious! } };
+        var pike = new FishDef { Id = 3, DisplayName = "海鲈鱼", LiveBaitTags = new[] { delicious! } };
+        Check("饵鱼标签可挂到鱼自身 Tags（沙丁鱼 = 美味）",
+            minnow.Tags.Length == 1 && ReferenceEquals(minnow.Tags[0], delicious));
+        Check("捕食者 LiveBaitTags 引用标签（海鲈鱼 = 美味）",
+            pike.LiveBaitTags.Length == 1 && ReferenceEquals(pike.LiveBaitTags[0], delicious));
+        Check("标签匹配：沙丁鱼（美味）能钓海鲈鱼（吃美味）",
             minnow.Tags.Any(t => pike.LiveBaitTags.Contains(t)));
-        var noTagBait = new FishDef { Id = 4, DisplayName = "无标签鱼", SellPrice = 5f };
+        var noTagBait = new FishDef { Id = 4, DisplayName = "无标签鱼" };
         Check("标签匹配：无标签鱼当饵钓不到海鲈鱼（交集空）",
             !noTagBait.Tags.Any(t => pike.LiveBaitTags.Contains(t)));
 

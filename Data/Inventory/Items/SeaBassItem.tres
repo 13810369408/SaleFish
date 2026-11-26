@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 DisplayName = "海鲈鱼"
+SellPrice = 220
 ShapePattern = PackedStringArray("xxx", "xxx")
 Texture = ExtResource("1_yiskw")
 DisplaySize = Vector2(3, 2)
