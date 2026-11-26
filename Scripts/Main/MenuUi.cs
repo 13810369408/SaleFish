@@ -271,12 +271,13 @@ public sealed partial class MenuUi : Control
         }
 
         // 解锁规则：已见未钓 = 灰色剪影 + 鱼名 "???"；钓到过 = 全彩 + 真名。
-        // 售价在卖鱼系统落地前一律显示 "?"（钓到也问号）。
+        // 售价 = 历史最高成交价（卖出过才显示；没卖过显示 "?"）。
         var caught = FishEncyclopediaLog.IsCaught(def.Id);
         var displayName = def.LocalizedName;
         if (displayName.Length == 0) displayName = Localizer.T("fish.unnamed");
         if (name != null) name.Text = caught ? displayName : UnknownName;
-        if (price != null) price.Text = UnknownPrice;
+        if (price != null)
+            price.Text = FishEncyclopediaLog.TryGetPrice(def.Id, out var bestPrice) ? bestPrice.ToString() : UnknownPrice;
         if (size != null) size.Text = Localizer.T(FishSizeKey(def.Size));
         if (depth != null)
             depth.Text = FishEncyclopediaLog.TryGetDepthRange(def.Id, out var dMin, out var dMax)

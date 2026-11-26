@@ -24,6 +24,8 @@ public static class FishEncyclopediaLog
         public float DepthMin;
         public float DepthMax;
         public bool Caught;
+        /// <summary>历史最高成交价（0 = 还没卖过，图鉴显示"?"）。</summary>
+        public int Price;
     }
 
     private static readonly Dictionary<long, Entry> Entries = [];
@@ -77,6 +79,30 @@ public static class FishEncyclopediaLog
         Changed?.Invoke();
     }
 
+    /// <summary>该鱼的历史最高成交价（图鉴价格行）：没卖过 / 无记录返回 false。</summary>
+    public static bool TryGetPrice(long fishId, out int price)
+    {
+        if (Entries.TryGetValue(fishId, out var e) && e.Price > 0) { price = e.Price; return true; }
+        price = 0;
+        return false;
+    }
+
+    /// <summary>卖出一条鱼：把成交价记入图鉴（只往上更新 = 记录历史最高成交价；0 不计）。实际有变化才广播。</summary>
+    public static void RecordSale(long fishId, int price)
+    {
+        if (price <= 0) return;
+        if (Entries.TryGetValue(fishId, out var e))
+        {
+            if (price <= e.Price) return;
+            e.Price = price;
+        }
+        else
+        {
+            Entries[fishId] = new Entry { Caught = true, Price = price };   // 理论不会发生，防御
+        }
+        Changed?.Invoke();
+    }
+
     /// <summary>快照成存档结构（SaveNow 用）。</summary>
     public static List<EncyclopediaSave> Snapshot() =>
         [.. Entries.Select(kv => new EncyclopediaSave
@@ -85,6 +111,7 @@ public static class FishEncyclopediaLog
             DepthMin = kv.Value.DepthMin,
             DepthMax = kv.Value.DepthMax,
             Caught = kv.Value.Caught,
+            Price = kv.Value.Price,
         })];
 
     /// <summary>整批替换为存档内容（读档用）；整批变化只广播一次（不逐条刷 UI）。</summary>
@@ -100,6 +127,7 @@ public static class FishEncyclopediaLog
                 DepthMin = r.DepthMin,
                 DepthMax = r.DepthMax,
                 Caught = r.Caught,
+                Price = r.Price,
             };
         }
         if (Entries.Count > 0) Changed?.Invoke();

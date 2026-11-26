@@ -19,6 +19,17 @@
 [ext_resource type="Script" uid="uid://bsj63vfccy7e4" path="res://Scripts/Fishing/FishingSpot.cs" id="20_spot"]
 [ext_resource type="Texture2D" uid="uid://cs0v6imyrrukf" path="res://Assets/SceneImage/Chair.png" id="21_chair"]
 [ext_resource type="PackedScene" path="res://Scenes/SitFishTooltip.tscn" id="22_sittip"]
+[ext_resource type="Texture2D" uid="uid://bydear0v1nji4" path="res://Assets/SceneImage/Chest.png" id="23_chest"]
+[ext_resource type="Texture2D" uid="uid://c6sv5rrqor0sk" path="res://Assets/InventoryImage/Label.png" id="24_label"]
+[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse1.tres" id="25_wh1"]
+[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse2.tres" id="26_wh2"]
+[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse3.tres" id="27_wh3"]
+[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse4.tres" id="28_wh4"]
+[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse5.tres" id="29_wh5"]
+[ext_resource type="Script" path="res://Scripts/Shop/PriceBoard.cs" id="30_priceboard"]
+[ext_resource type="Script" path="res://Scripts/Common/InteractZone.cs" id="31_interact"]
+[ext_resource type="PackedScene" path="res://Scenes/ShopUi.tscn" id="32_shopui"]
+[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="33_loc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_water"]
 size = Vector2(12000, 5500)
@@ -31,6 +42,9 @@ size = Vector2(3722, 121)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_spotdetect"]
 size = Vector2(191, 157)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shopdetect"]
+size = Vector2(280, 320)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hook"]
 radius = 8.0
@@ -49,7 +63,7 @@ texture = ExtResource("6_8ie50")
 [node name="WarehouseAnchor" type="Marker2D" parent="." unique_id=827364512]
 position = Vector2(-491, -43)
 
-[node name="Inventory" type="Sprite2D" parent="." unique_id=436649623]
+[node name="FishKeep" type="Sprite2D" parent="." unique_id=436649623]
 position = Vector2(44.67, 103.865)
 scale = Vector2(6, 6)
 texture = ExtResource("7_8ie50")
@@ -57,6 +71,111 @@ script = ExtResource("18_whbtn")
 Storage = ExtResource("10_storage")
 UiHostPath = NodePath("../UI/Hud")
 WarehouseAnchorPath = NodePath("../WarehouseAnchor")
+
+[node name="ShopSpawn" type="Marker2D" parent="."]
+position = Vector2(-560, 60)
+
+[node name="FishKeepAtShop" type="Marker2D" parent="."]
+position = Vector2(-740, 80)
+
+[node name="FishShop" type="Node2D" parent="."]
+position = Vector2(-520, 71)
+script = ExtResource("31_interact")
+
+[node name="Sprite" type="Sprite2D" parent="FishShop"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("23_chest")
+
+[node name="Detect" type="Area2D" parent="FishShop"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FishShop/Detect"]
+shape = SubResource("RectangleShape2D_shopdetect")
+
+[node name="Highlight" type="Line2D" parent="FishShop"]
+visible = false
+points = PackedVector2Array(-150, -170, 150, -170, 150, 170, -150, 170, -150, -170)
+width = 6.0
+default_color = Color(0.4, 1, 0.6, 1)
+
+[node name="PriceBoard" type="Sprite2D" parent="."]
+position = Vector2(-660, 40)
+scale = Vector2(6, 6)
+texture = ExtResource("24_label")
+script = ExtResource("30_priceboard")
+
+[node name="BoardLabel" type="Label" parent="PriceBoard"]
+offset_left = -60.0
+offset_top = -110.0
+offset_right = 60.0
+offset_bottom = -70.0
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_font_sizes/font_size = 22
+text = "价格板"
+horizontal_alignment = 1
+
+[node name="LocalizedText" type="Node" parent="PriceBoard/BoardLabel"]
+script = ExtResource("33_loc")
+LocalizationKey = "ui.priceboard"
+
+[node name="Warehouse1" type="Sprite2D" parent="."]
+position = Vector2(-1340, 71)
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("23_chest")
+script = ExtResource("18_whbtn")
+Storage = ExtResource("25_wh1")
+UiHostPath = NodePath("../UI/Hud")
+WarehouseAnchorPath = NodePath("../WarehouseAnchor1")
+
+[node name="Warehouse2" type="Sprite2D" parent="."]
+position = Vector2(-1220, 71)
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("23_chest")
+script = ExtResource("18_whbtn")
+Storage = ExtResource("26_wh2")
+UiHostPath = NodePath("../UI/Hud")
+WarehouseAnchorPath = NodePath("../WarehouseAnchor2")
+
+[node name="Warehouse3" type="Sprite2D" parent="."]
+position = Vector2(-1100, 71)
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("23_chest")
+script = ExtResource("18_whbtn")
+Storage = ExtResource("27_wh3")
+UiHostPath = NodePath("../UI/Hud")
+WarehouseAnchorPath = NodePath("../WarehouseAnchor3")
+
+[node name="Warehouse4" type="Sprite2D" parent="."]
+position = Vector2(-980, 71)
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("23_chest")
+script = ExtResource("18_whbtn")
+Storage = ExtResource("28_wh4")
+UiHostPath = NodePath("../UI/Hud")
+WarehouseAnchorPath = NodePath("../WarehouseAnchor4")
+
+[node name="Warehouse5" type="Sprite2D" parent="."]
+position = Vector2(-860, 71)
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("23_chest")
+script = ExtResource("18_whbtn")
+Storage = ExtResource("29_wh5")
+UiHostPath = NodePath("../UI/Hud")
+WarehouseAnchorPath = NodePath("../WarehouseAnchor5")
+
+[node name="WarehouseAnchor1" type="Marker2D" parent="."]
+position = Vector2(-420, -280)
+
+[node name="WarehouseAnchor2" type="Marker2D" parent="."]
+position = Vector2(420, -280)
+
+[node name="WarehouseAnchor3" type="Marker2D" parent="."]
+position = Vector2(-420, 60)
+
+[node name="WarehouseAnchor4" type="Marker2D" parent="."]
+position = Vector2(420, 60)
+
+[node name="WarehouseAnchor5" type="Marker2D" parent="."]
+position = Vector2(0, -100)
 
 [node name="Water" type="Area2D" parent="." unique_id=436649624]
 position = Vector2(6285, 773)
@@ -169,3 +288,6 @@ layout_mode = 1
 
 [node name="SitFishTooltip" parent="UI/Hud" instance=ExtResource("22_sittip")]
 layout_mode = 0
+
+[node name="ShopUi" parent="UI/Hud" instance=ExtResource("32_shopui")]
+layout_mode = 1

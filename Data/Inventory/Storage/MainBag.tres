@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("1_cfg")
 Id = 2001
-DisplayName = "主背包"
+DisplayName = "鱼护"
 CellSize = 84
 ValidPattern = PackedStringArray("xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx")
 CellTexture = ExtResource("2_b4wri")

@@ -1,0 +1,299 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Shop/ShopUi.cs" id="1_shopui"]
+[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="2_loc"]
+
+[node name="ShopUi" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_shopui")
+
+[node name="StartSellButton" type="Button" parent="."]
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -132.0
+offset_right = -40.0
+offset_bottom = -48.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 28
+text = "开始卖鱼"
+
+[node name="LocalizedText" type="Node" parent="StartSellButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.start_sell"
+
+[node name="PricePanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -400.0
+offset_right = 470.0
+offset_bottom = 400.0
+
+[node name="VBox" type="VBoxContainer" parent="PricePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = -28.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="PricePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_font_sizes/font_size = 34
+text = "价格板"
+horizontal_alignment = 1
+
+[node name="LocalizedText" type="Node" parent="PricePanel/VBox/Title"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.price.title"
+
+[node name="Scroll" type="ScrollContainer" parent="PricePanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="PricePanel/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="PricePanel/VBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "关闭"
+
+[node name="LocalizedText" type="Node" parent="PricePanel/VBox/CloseButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.close"
+
+[node name="ResultPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -400.0
+offset_right = 470.0
+offset_bottom = 400.0
+
+[node name="VBox" type="VBoxContainer" parent="ResultPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = -28.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="ResultPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_font_sizes/font_size = 34
+text = "结算"
+horizontal_alignment = 1
+
+[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/Title"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.result.title"
+
+[node name="Summary" type="Label" parent="ResultPanel/VBox"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = ""
+autowrap_mode = 3
+
+[node name="DetailButton" type="Button" parent="ResultPanel/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "详细信息"
+
+[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/DetailButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.result.detail"
+
+[node name="DetailScroll" type="ScrollContainer" parent="ResultPanel/VBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="DetailText" type="VBoxContainer" parent="ResultPanel/VBox/DetailScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CloseButton" type="Button" parent="ResultPanel/VBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "结束"
+
+[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/CloseButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.result.close"
+
+[node name="ConfirmOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="ConfirmOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Center" type="CenterContainer" parent="ConfirmOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="ConfirmOverlay/Center"]
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="ConfirmOverlay/Center/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 26.0
+offset_top = 24.0
+offset_right = -26.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Prompt" type="Label" parent="ConfirmOverlay/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="ConfirmOverlay/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="YesButton" type="Button" parent="ConfirmOverlay/Center/Panel/VBox/Buttons"]
+custom_minimum_size = Vector2(180, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "确认"
+
+[node name="LocalizedText" type="Node" parent="ConfirmOverlay/Center/Panel/VBox/Buttons/YesButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.confirm.yes"
+
+[node name="NoButton" type="Button" parent="ConfirmOverlay/Center/Panel/VBox/Buttons"]
+custom_minimum_size = Vector2(180, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "取消"
+
+[node name="LocalizedText" type="Node" parent="ConfirmOverlay/Center/Panel/VBox/Buttons/NoButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.confirm.no"
+
+[node name="WarnOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="WarnOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Center" type="CenterContainer" parent="WarnOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="WarnOverlay/Center"]
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="WarnOverlay/Center/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 26.0
+offset_top = 24.0
+offset_right = -26.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Message" type="Label" parent="WarnOverlay/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="WarnOverlay/Center/Panel/VBox"]
+custom_minimum_size = Vector2(180, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "关闭"
+
+[node name="LocalizedText" type="Node" parent="WarnOverlay/Center/Panel/VBox/CloseButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "shop.close"

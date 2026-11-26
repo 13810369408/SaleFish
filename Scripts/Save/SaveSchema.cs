@@ -10,13 +10,23 @@ namespace SaleFish.Save;
 /// 各字段带默认值，旧存档读进缺字段也不崩。
 /// </summary>
 
+/// <summary>存档里记录的玩家阶段（与 MainStage.GamePhase 对应；Fishing/Selling 是过程态，不落盘）。</summary>
+public enum SavePhase
+{
+    Ready = 0,
+    FreeMove = 1,
+    PrepareShop = 2,
+}
+
 /// <summary>一份存档文件。</summary>
 public sealed class SaveFile
 {
     /// <summary>存档格式版本：将来字段变更时用它在读档处做迁移/补默认。
     /// v2 = 新增 <see cref="InFreeMove"/>（v1 旧档缺该字段 → 用字段默认值 true，即进场自由移动）。
-    /// v3 = 新增 <see cref="PlayerX"/>/<see cref="PlayerY"/>（旧档为 null → 用场景默认出生点）。</summary>
-    public int Version = 3;
+    /// v3 = 新增 <see cref="PlayerX"/>/<see cref="PlayerY"/>（旧档为 null → 用场景默认出生点）。
+    /// v4 = 新增 <see cref="Phase"/>（玩家阶段，替代 bool）+ <see cref="ShopPrices"/>/<see cref="LastSellSeed"/>
+    ///      + 图鉴价格 <see cref="EncyclopediaSave.Price"/>；旧档 Phase = -1 → 回退看 InFreeMove。</summary>
+    public int Version = 4;
 
     /// <summary>保存时刻（unix 秒），槽位列表显示用。</summary>
     public long SavedAt;
@@ -31,9 +41,17 @@ public sealed class SaveFile
     public long TotalCaught;
 
     /// <summary>存档时玩家是否处于「自由移动」阶段（GamePhase.FreeMove）。
-    /// 默认 true：旧档没有这个字段时也用默认值 → 读进来是自由移动（与「默认状态 = 自由移动」一致）。
-    /// 存 false 表示当时坐在钓鱼点「准备钓鱼」，读档直接进 Ready。</summary>
+    /// **v4 起仅用于读旧档兼容**：新存档以 <see cref="Phase"/> 为准，这里同步写一份方便降级/排查。</summary>
     public bool InFreeMove = true;
+
+    /// <summary>存档时的玩家阶段（见 <see cref="SavePhase"/>）。-1 = 旧档没记录 → 回退看 <see cref="InFreeMove"/>。</summary>
+    public int Phase = -1;
+
+    /// <summary>卖鱼定价（按鱼种）：价格板上玩家填的标价，准备开店阶段之后一直有效，随存档保存。</summary>
+    public List<ShopPriceSave> ShopPrices = [];
+
+    /// <summary>上一场卖鱼的确定性种子（hash 派生，见 Shop.SellService.DeriveSeed）。-1 = 还没卖过。</summary>
+    public long LastSellSeed = -1;
 
     /// <summary>玩家位置（世界坐标 X）。null = 没记录（旧档 / 从没进过主关卡）→ 读档用场景默认出生点。</summary>
     public float? PlayerX;
@@ -61,6 +79,17 @@ public sealed class EncyclopediaSave
     public float DepthMax;
     /// <summary>是否钓到过（图鉴该鱼变全彩、显示真名）。</summary>
     public bool Caught;
+    /// <summary>历史最高成交价（0 = 还没卖过，图鉴价格行显示"?"）。</summary>
+    public int Price;
+}
+
+/// <summary>一种鱼的玩家标价（价格板）。</summary>
+public sealed class ShopPriceSave
+{
+    /// <summary>FishDef.Id。</summary>
+    public long FishId;
+    /// <summary>玩家填的标价（0~999）。</summary>
+    public int Price;
 }
 
 /// <summary>一座仓库的存档内容。</summary>

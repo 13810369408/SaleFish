@@ -64,31 +64,50 @@ public sealed partial class MainStage : Node2D
     /// </summary>
     public enum GamePhase
     {
-        /// <summary>准备钓鱼（站在钓鱼点，空闲）：空手左键抛竿；「退出钓鱼」→ FreeMove。</summary>
+        /// <summary>准备钓鱼（站在钓鱼点，空闲）：空手左键抛竿；「退出钓鱼」→ 传送到鱼店（准备开店）。</summary>
         Ready,
         /// <summary>正在钓鱼（蓄力 → 钓上/一竿结束/右键·菜单取消）。</summary>
         Fishing,
-        /// <summary>自由移动：A/D 左右走（只有这里能移动玩家），走回钓鱼点点击坐下 → Ready。</summary>
+        /// <summary>自由移动：A/D 左右走，走回钓鱼点点击坐下 → Ready（鱼护随之搬回钓鱼区）。</summary>
         FreeMove,
+        /// <summary>准备开店（在鱼店）：把鱼从鱼护拖进仓库、点价格板标价、点「开始卖鱼」。</summary>
+        PrepareShop,
+        /// <summary>开始卖鱼（过程态，不落盘）：快速结算 + 结算面板，点「结束」→ FreeMove。</summary>
+        Selling,
     }
 
     /// <summary>当前行为阶段（公开只读，测试断言用）。</summary>
     public GamePhase Phase { get; private set; } = GamePhase.Ready;
 
-    /// <summary>切换行为阶段（同值跳过，幂等）。阶段会随存档保存（FreeMove / 其余一律读回 Ready）。</summary>
+    /// <summary>切换行为阶段（同值跳过，幂等）。阶段会随存档保存（Fishing/Selling 是过程态，落盘记成 Ready）。</summary>
     private void SetPhase(GamePhase next)
     {
         if (Phase == next) return;
         Phase = next;
-        // 存进存档的只有「自由移动 / 不是自由移动」：Fishing 是过程态，读到一律以 Ready 进场。
-        SaveManager.InFreeMove = next == GamePhase.FreeMove;
+        SaveManager.Phase = next switch
+        {
+            GamePhase.FreeMove => SavePhase.FreeMove,
+            GamePhase.PrepareShop => SavePhase.PrepareShop,
+            _ => SavePhase.Ready,   // Ready / Fishing / Selling（过程态）
+        };
+        // 鱼护跟着玩家所在区域走：开店在鱼店旁、坐下钓鱼时搬回钓鱼区原位。
+        if (next == GamePhase.PrepareShop) PlaceFishKeepAtShop();
+        else if (next == GamePhase.Ready) ReturnFishKeepHome();
     }
+
+    /// <summary>存档阶段 → 运行时阶段（Selling 不落盘）。</summary>
+    private static GamePhase FromSavePhase(SavePhase phase) => phase switch
+    {
+        SavePhase.FreeMove => GamePhase.FreeMove,
+        SavePhase.PrepareShop => GamePhase.PrepareShop,
+        _ => GamePhase.Ready,
+    };
 
     /// <summary>钓上鱼时自动打开的仓库按钮（路径）：场景里的一个挂 WarehouseButton 组件的仓库开/关节点
     /// （当前是 Sprite2D「Inventory」宝箱）。钓上时对它走「打开仓库」（调它的 Open，仅打开不关闭）；
     /// 以后场景有多个仓库按钮时，把这里指向你想让钓上自动弹出的那个。
     /// null/空路径/节点无效 = 钓上不自动打开（保持旧行为：只生成放置物）。仓库被拖拽过位置后，自动打开也落在该位置。</summary>
-    [Export] public NodePath? AutoOpenWarehouseButtonPath = new NodePath("Inventory");
+    [Export] public NodePath? AutoOpenWarehouseButtonPath = new NodePath("FishKeep");
 
     /// <summary>钓上自动开仓的按钮路径已解析失败过一次（只告警一次，避免每次钓上刷屏）。</summary>
     private bool _warnedAutoOpenMissing;
@@ -247,10 +266,11 @@ public sealed partial class MainStage : Node2D
         Localizer.LanguageChanged += OnLanguageChanged;
         OnHeldChanged(null);
 
-        // 开局阶段 = 存档里记的阶段（SaveManager.InFreeMove，默认 true）：
-        //  真 = 自由移动（新游戏 / 直接运行主关卡 / 旧档）；
-        //  假 = 「准备钓鱼」（存档时正坐在钓鱼点上）。
-        SetPhase(SaveManager.InFreeMove ? GamePhase.FreeMove : GamePhase.Ready);
+        InitShop();   // 鱼店/鱼护/价格板/鱼店 UI 接线（见 MainStage.Shop.cs）
+
+        // 开局阶段 = 存档里记的阶段（SaveManager.Phase，默认 FreeMove）：
+        //  新游戏 / 直接运行主关卡 = 自由移动；存档在鱼店 = 准备开店；存档坐在椅子上 = Ready。
+        SetPhase(FromSavePhase(SaveManager.Phase));
         if (Phase == GamePhase.FreeMove) _status.Text = Localizer.T("status.freemove");
 
         // 读档/续档：把存档里的玩家位置摆回来（新游戏 / 直接运行本场景 = null，保持场景默认出生点）。
@@ -299,6 +319,7 @@ public sealed partial class MainStage : Node2D
         StepPlayerMovement(delta);   // 自由移动：A/D 行走 / 自动走去坐下；其余阶段静止落地
         if (_player != null) SaveManager.PlayerPosition = _player.GlobalPosition;   // 存档用：每帧记当前位置
         UpdateFishSpotUi();          // 钓鱼点高亮描边 + 「坐下钓鱼」悬浮提示跟随鼠标
+        UpdateShopUi();              // 鱼店高亮 + 「开始卖鱼」按钮显隐（准备开店阶段）
         UpdateExitFishButtonPosition();   // 「退出钓鱼」按钮钉在钓鱼点附近（仅 Ready 显示）
         // 自由移动时镜头柔和跟随玩家 X（避免走动着出屏；走回钓鱼点后镜头就停在钓鱼点附近）。
         if (Phase == GamePhase.FreeMove && _player != null && _camera != null)
@@ -563,7 +584,7 @@ public sealed partial class MainStage : Node2D
         // 「获取放置物 / 丢弃放置物」已移到独立关卡 InventoryDemo。
         _exitFishButton = new Button { Name = "ExitFishingButton", Text = Localizer.T("ui.exit_fishing") };
         _exitFishButton.AddThemeFontSizeOverride("font_size", 20);
-        _exitFishButton.Pressed += ExitToFreeMove;
+        _exitFishButton.Pressed += GoToShop;
         ui.AddChild(_exitFishButton);
 
         _powerBar = new ProgressBar
@@ -681,6 +702,14 @@ public sealed partial class MainStage : Node2D
             return;
         }
 
+        // 准备开店阶段：点价格板 → 打开价格面板（仓库存放/拾取仍走仓库视图，互不冲突）。
+        if (Phase == GamePhase.PrepareShop && Shop.PriceBoard.HitTest(canvasPoint) is { } board)
+        {
+            GetViewport().SetInputAsHandled();
+            board.RaiseClicked();
+            return;
+        }
+
         // 仓库模态：点击落在仓库页面以外（未命中任何仓库按钮/仓库页）。单仓库 + 空手 → 关闭当前仓库；
         // 多仓库同时打开（≥2）→ 外部点击一律不生效，仅各自的仓库按钮仍可隐藏所对应的仓库。
         var openCount = WarehouseRegistry.OpenCount;
@@ -696,9 +725,9 @@ public sealed partial class MainStage : Node2D
         // 手持放置物时左键是「放/拾」语义（落在仓库格上已被视图消费，这里兜底世界区）：不抛竿。
         if (HeldItemController.Instance?.HeldItem != null) return;
 
-        // 自由移动（FreeMove）：不抛竿/不收线。只有「玩家已在钓鱼点检测范围内（高亮显示）」时，
-        // 左键点椅子才触发「坐下钓鱼」；其它点击不吃。
-        if (Phase == GamePhase.FreeMove)
+        // 自由移动 / 准备开店：不抛竿/不收线。只有「玩家已在钓鱼点检测范围内（高亮显示）」时，
+        // 左键点椅子才触发「坐下钓鱼」；其它点击不吃。（准备开店也能点椅子离开鱼店。）
+        if (Phase is GamePhase.FreeMove or GamePhase.PrepareShop)
         {
             if (_fishSpot != null && _player != null
                 && _fishSpot.IsPointInside(_player.GlobalPosition)   // 玩家必须先走到椅子旁（highlight 显示）
@@ -777,23 +806,14 @@ public sealed partial class MainStage : Node2D
 
     // ---- 自由移动：退出钓鱼 / 玩家移动 / 钓鱼点交互（获取/丢弃已移到 InventoryDemo 场景） ----
 
-    /// <summary>「退出钓鱼」（仅 Ready 阶段显示）：切到自由移动（A/D 左右走），走回钓鱼点点击坐下。</summary>
-    public void ExitToFreeMove()
-    {
-        if (Phase != GamePhase.Ready) return;
-        SetPhase(GamePhase.FreeMove);
-        _status.Text = Localizer.T("status.freemove");
-        RefreshButtons();
-    }
-
-    /// <summary>每帧玩家移动：FreeMove 时 A/D 左右走 / 自动走到钓鱼点（到位切 Ready）；其余阶段静止。
+    /// <summary>每帧玩家移动：自由移动 / 准备开店时 A/D 左右走 / 自动走到钓鱼点（到位切 Ready）；其余阶段静止。
     /// CharacterBody2D 带下落重力，踩在场景 Ground 上站稳。暴露给测试可注入 delta 直接步进。</summary>
     public void StepPlayerMovement(double delta)
     {
         if (_player == null || !IsInstanceValid(_player)) return;
 
         // 自动走到钓鱼点：直接位移（确定性，测试友好；不做物理，避免被地面碰撞干扰走向）。
-        if (Phase == GamePhase.FreeMove && _walkingToSpot)
+        if (Phase is GamePhase.FreeMove or GamePhase.PrepareShop && _walkingToSpot)
         {
             var dx = _walkTargetX - _player.GlobalPosition.X;
             var step = Mathf.Clamp(Mathf.Sign(dx) * WalkSpeed * (float)delta, -Mathf.Abs(dx), Mathf.Abs(dx));
@@ -810,9 +830,9 @@ public sealed partial class MainStage : Node2D
             return;
         }
 
-        // FreeMove 的 A/D 左右走 / 其它阶段静止：CharacterBody2D 带重力，踩在地面 Ground 上站稳。
+        // 自由移动 / 准备开店的 A/D 左右走 / 其它阶段静止：CharacterBody2D 带重力，踩在地面 Ground 上站稳。
         var moveX = 0f;
-        if (Phase == GamePhase.FreeMove)
+        if (Phase is GamePhase.FreeMove or GamePhase.PrepareShop)
         {
             if (Input.IsPhysicalKeyPressed(Key.A)) moveX -= WalkSpeed;
             if (Input.IsPhysicalKeyPressed(Key.D)) moveX += WalkSpeed;
@@ -833,7 +853,7 @@ public sealed partial class MainStage : Node2D
         var spot = _fishSpot;
         if (spot == null) return;
 
-        if (Phase != GamePhase.FreeMove || _player == null)
+        if (Phase is not (GamePhase.FreeMove or GamePhase.PrepareShop) || _player == null)
         {
             spot.SetHighlight(false);
             _sitFishTooltip?.Hide();
@@ -878,6 +898,7 @@ public sealed partial class MainStage : Node2D
     /// <summary>全局手状态变化（拿起/放下/钓上物品/隐藏还原）→ 刷新按钮与状态栏。</summary>
     private void OnHeldChanged(InventoryItem? held)
     {
+        RefreshPriceBoardIfOpen();   // 准备开店：往仓库放/拿鱼时，价格板实时刷新鱼种行
         RefreshButtons();
         if (held == null)
         {

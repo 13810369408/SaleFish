@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="StorageTypeDef" format=3]
+
+[ext_resource type="Texture2D" uid="uid://cq8gjh0didswp" path="res://Assets/InventoryImage/Box.png" id="1_bg"]
+[ext_resource type="Script" path="res://Scripts/Inventory/StorageTypeDef.cs" id="1_cfg"]
+[ext_resource type="Texture2D" uid="uid://cx3i7li2314sm" path="res://Assets/InventoryImage/GridEmpty.tres" id="2_cell"]
+[ext_resource type="Texture2D" uid="uid://cfkau36aimi4w" path="res://Assets/InventoryImage/GridFull.tres" id="3_full"]
+
+[resource]
+script = ExtResource("1_cfg")
+Id = 2012
+DisplayName = "仓库3"
+CellSize = 84
+ValidPattern = PackedStringArray("xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx")
+CellTexture = ExtResource("2_cell")
+CellTextureWithItem = ExtResource("3_full")
+BackgroundTexture = ExtResource("1_bg")
+BackgroundTextureSize = Vector2(10, 8)
+BackgroundTextureOffset = Vector2(0.036, -0.393)

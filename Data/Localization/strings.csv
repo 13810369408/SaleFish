@@ -1,4 +1,4 @@
-keys,zh,en
+﻿keys,zh,en
 menu.button.menu,菜单,Menu
 menu.button.resume,继续游戏,Resume
 menu.button.home,图鉴首页,Home
@@ -54,3 +54,26 @@ status.freemove,自由移动：A/D 左右移动,Free roam: A/D to move
 status.ready_fish,已回到钓鱼点：空手左键抛竿,At the fishing spot — LMB to cast
 status.sit_fish_goto,正走向钓鱼点…,Walking to the fishing spot…
 status.hand.empty,空手（钓上的鱼可存入仓库）,Empty hands
+shop.start_sell,开始卖鱼,Start Selling
+shop.close,关闭,Close
+shop.price.title,价格板,Price Board
+shop.price.historical,历史最高成交价：{0},Best price: {0}
+shop.price.placeholder,标价,Price
+shop.price.unit,金币,gold
+shop.confirm.yes,确认,Confirm
+shop.confirm.no,取消,Cancel
+shop.confirm.keepnet,鱼护内还有未放入仓库的鱼，是否确认开始卖鱼？,There are still fish in your keep net. Start selling anyway?
+shop.warn.unpriced,还有鱼没有标价，请先在价格板上为每种鱼标价。,Some fish have no price. Set a price for every fish on the price board first.
+shop.result.title,结算,Settlement
+shop.result.detail,详细信息,Details
+shop.result.close,结束,Finish
+shop.result.summary,总收入：{0} 金币,Total income: {0} gold
+shop.result.sold,{0} 卖出 {1} 条（成交 {2} 金币）,{0} x{1} (sold for {2} gold)
+shop.result.remain,{0} 剩余 {1} 条,{0} remaining: {1}
+shop.result.nocustomer,没有顾客购买任何鱼,No customer bought anything
+shop.result.customer,{0}（预算 {1}，花费 {2}）,{0} (budget {1}, spent {2})
+shop.result.customer_empty,{0}（预算 {1}）：没有购买,{0} (budget {1}): bought nothing
+shop.result.customer_item,　　{0} @ {1},{0} @ {1}
+shop.prepare.enter,已到鱼店：把鱼护里的鱼放进仓库，标好价再卖。,At the shop: move fish into warehouses, set prices, then sell.
+shop.sold.done,卖鱼完成，收入 {0} 金币,Finished selling: +{0} gold
+ui.priceboard,价格板,Price Board

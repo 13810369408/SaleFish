@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using SaleFish.Common;
 using SaleFish.Fishing;
 using SaleFish.Inventory;
@@ -48,7 +48,7 @@ public sealed partial class TestMainStage : Node
             .Instantiate<Main.MainStage>();
         AddChild(_stage);
 
-        _inventorySprite = _stage.GetNodeOrNull<Sprite2D>("Inventory");
+        _inventorySprite = _stage.GetNodeOrNull<Sprite2D>("FishKeep");
         _exitFishButton = FindButton("ExitFishingButton");
         _powerBar = _stage.FindChild("PowerBar", recursive: true, owned: false) as ProgressBar;
         if (_powerBar == null) GD.PrintErr("[MainStageTest] 找不到 PowerBar 蓄力条");
@@ -139,7 +139,7 @@ public sealed partial class TestMainStage : Node
         TestCatchAutoOpenAndDrag();
         TestCatchFirstOpenEndToEnd();
         TestFishingPhaseLocksWarehouse();
-        TestFreeMoveAndFishSpot();
+        TestShopTeleportAndFishSpot();
         TestMouseWorldWithCamera();
         TestPlayerPositionRoundTrip();
     }
@@ -258,8 +258,8 @@ public sealed partial class TestMainStage : Node
         var hand = HeldItemController.Instance!;
 
         // ---- A. 钓上自动开仓：绑定导出 + 解析 ----
-        Check("钓上自动开仓：默认绑定 Inventory 按钮", _stage.AutoOpenWarehouseButtonPath?.ToString() == "Inventory");
-        var btn = _stage.GetNodeOrNull<WarehouseButton>("Inventory");
+        Check("钓上自动开仓：默认绑定鱼护（FishKeep）按钮", _stage.AutoOpenWarehouseButtonPath?.ToString() == "FishKeep");
+        var btn = _stage.GetNodeOrNull<WarehouseButton>("FishKeep");
         Check("钓上自动开仓：绑定解析到仓库按钮组件（Inventory 挂了 WarehouseButton）", btn != null);
         if (btn == null) return;
 
@@ -364,7 +364,7 @@ public sealed partial class TestMainStage : Node
         hand.DiscardHeld();
 
         // G5 恢复默认（保持可复现）
-        _stage.AutoOpenWarehouseButtonPath = new NodePath("Inventory");
+        _stage.AutoOpenWarehouseButtonPath = new NodePath("FishKeep");
 
         // ---- H. 重复开合回归：几何（格子偏移/视图尺寸）不随开合次数漂移，且偶数次重开后盒面背景仍可拖 ----
         var geo0 = (grid: w.GridOffset, size: w.Size);
@@ -437,7 +437,7 @@ public sealed partial class TestMainStage : Node
     private void TestFishingPhaseLocksWarehouse()
     {
         var hand = HeldItemController.Instance!;
-        var btn = _stage.GetNodeOrNull<WarehouseButton>("Inventory");
+        var btn = _stage.GetNodeOrNull<WarehouseButton>("FishKeep");
         Check("状态机前置：初始为「准备钓鱼」", btn != null && _stage.Phase == Main.MainStage.GamePhase.Ready);
         if (btn == null) return;
         hand.DiscardHeld();
@@ -479,34 +479,44 @@ public sealed partial class TestMainStage : Node
     }
 
     /// <summary>
-    /// 自由移动（GamePhase.FreeMove）+ 钓鱼点（FishingSpot）交互：
-    ///  ▪ 「退出钓鱼」按钮（Ready 才显示）→ 切 FreeMove；
-    ///  ▪ 玩家在检测范围「外」点椅子无效；走进范围内（高亮显示）后点椅子 → 走向钓鱼点 X → Ready；
-    ///  ▪ 玩家在范围内 → 高亮描边开；离开 → 关；
-    ///  ▪ 「坐下钓鱼」悬浮提示只在「玩家在范围内 + 鼠标悬停在椅子上」时显示。
+    /// 「退出钓鱼」→ 传送到鱼店（准备开店）+ 钓鱼点交互：
+    ///  ▪ 点「退出钓鱼」：玩家 + 鱼护 一起到鱼店，阶段 = PrepareShop（不再切自由移动）；
+    ///  ▪ 玩家可走回钓鱼点：范围外点椅子无效；范围内点椅子 → 走向 → Ready，鱼护随之搬回原位；
+    ///  ▪ 高亮 / 「坐下钓鱼」提示在自由移动与准备开店阶段都有效。
     /// </summary>
-    private void TestFreeMoveAndFishSpot()
+    private void TestShopTeleportAndFishSpot()
     {
         var player = _stage.GetNodeOrNull<CharacterBody2D>("Player");
         var spot = _stage.GetNodeOrNull<FishingSpot>("FishingSpot");
         // 悬浮提示是 prefab 实例（Scenes/SitFishTooltip.tscn），摆在 UI/Hud 下。
         var tip = _stage.GetNodeOrNull<SitFishTooltip>("UI/Hud/SitFishTooltip");
-        Check("自由移动前置：Player(CharacterBody2D) / FishingSpot / 悬浮提示(prefab) 均存在",
-            player != null && spot != null && tip != null);
+        var shop = _stage.GetNodeOrNull<InteractZone>("FishShop");
+        var keep = _stage.GetNodeOrNull<Sprite2D>("FishKeep");
+        var shopSpawn = _stage.GetNodeOrNull<Node2D>("ShopSpawn");
+        var keepAtShop = _stage.GetNodeOrNull<Node2D>("FishKeepAtShop");
+        Check("准备开店前置：Player / FishingSpot / 悬浮提示 / 鱼店 / 鱼护 / 两个落点 均存在",
+            player != null && spot != null && tip != null && shop != null && keep != null
+            && shopSpawn != null && keepAtShop != null);
         if (player == null || spot == null) return;
 
-        Check("FreeMove 前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        var keepHome = keep?.GlobalPosition ?? Vector2.Zero;
+
+        Check("准备开店前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
         Press(_exitFishButton);
-        Check("点「退出钓鱼」：进入自由移动（FreeMove）", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
-        Check("自由移动状态写入存档标记（SaveManager.InFreeMove）", SaveManager.InFreeMove);
-        Check("FreeMove：退出钓鱼按钮隐藏", !_exitFishButton.Visible);
+        Check("点「退出钓鱼」：进入准备开店（PrepareShop）", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
+        Check("准备开店状态写入存档标记（SaveManager.Phase = PrepareShop）", SaveManager.Phase == SavePhase.PrepareShop);
+        Check("传送到鱼店：玩家在鱼店落点",
+            shopSpawn != null && player.GlobalPosition.DistanceTo(shopSpawn.GlobalPosition) < 2f);
+        Check("传送：鱼护搬到鱼店旁",
+            keep != null && keepAtShop != null && keep.GlobalPosition.DistanceTo(keepAtShop.GlobalPosition) < 2f);
+        Check("准备开店：「退出钓鱼」按钮隐藏", !_exitFishButton.Visible);
 
         var highlight = spot.GetNodeOrNull<Line2D>("Highlight");
 
         // ---- 玩家在检测范围「外」：点椅子不触发，悬停也不显示提示 ----
         player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 400f, player.GlobalPosition.Y);
         ClickSpot();
-        Check("范围外点椅子：不触发（仍 FreeMove）", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
+        Check("范围外点椅子：不触发（仍准备开店）", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
         _stage.UpdateFishSpotUi(spot.GlobalPosition);   // 鼠标落在椅子上，但玩家在范围外
         Check("范围外：高亮关闭", highlight != null && !highlight.Visible);
         if (tip != null) Check("范围外悬停椅子：不显示「坐下钓鱼」", !tip.Visible);
@@ -519,7 +529,7 @@ public sealed partial class TestMainStage : Node
 
         // ---- 范围内点椅子 → 走向钓鱼点 X → Ready ----
         ClickSpot();
-        Check("范围内点椅子：开始走向", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
+        Check("范围内点椅子：开始走向", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
         const double dt = 1.0 / 60.0;
         for (var i = 0; i < 3000; i++)
         {
@@ -528,11 +538,12 @@ public sealed partial class TestMainStage : Node
         }
         Check("走向后：玩家停在钓鱼点 X", Mathf.Abs(player.GlobalPosition.X - spot.GlobalPosition.X) < 4f);
         Check("走向后：阶段切回「准备钓鱼」(Ready)", _stage.Phase == Main.MainStage.GamePhase.Ready);
-        Check("准备钓鱼状态写入存档标记（SaveManager.InFreeMove = false，会随存档保存）", !SaveManager.InFreeMove);
+        Check("准备钓鱼状态写入存档标记（SaveManager.Phase = Ready）", SaveManager.Phase == SavePhase.Ready);
+        Check("回到 Ready：鱼护搬回钓鱼区原位", keep != null && keep.GlobalPosition.DistanceTo(keepHome) < 2f);
 
-        // 非 FreeMove 阶段：高亮关闭
+        // 其它阶段：高亮关闭
         _stage.UpdateFishSpotUi(spot.GlobalPosition);
-        Check("非 FreeMove：高亮关闭", highlight != null && !highlight.Visible);
+        Check("非自由移动/准备开店：高亮关闭", highlight != null && !highlight.Visible);
     }
 
     /// <summary>

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CustomerDef" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Shop/CustomerDef.cs" id="1_script"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Delicious.tres" id="2_tag"]
+
+[resource]
+script = ExtResource("1_script")
+Id = 101
+DisplayName = "厨师"
+PreferenceTags = [ExtResource("2_tag")]
+MinBudget = 200
+MaxBudget = 800

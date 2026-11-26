@@ -24,10 +24,24 @@ public sealed partial class SaveManager : Node
     /// <summary>当前操作的槽名（SaveNow/LoadSlot 后写它）；空 = 尚未指定。</summary>
     public static string ActiveSlot { get; private set; } = "";
 
-    /// <summary>存档里的「玩家处于自由移动」状态（GamePhase.FreeMove）：**默认 true**，
-    /// 所以新游戏 / 直接运行主关卡 / 从没存过档，进场都是自由移动；存过档则按存档恢复。
+    /// <summary>存档里的玩家阶段（GamePhase 的落盘投影）：默认 FreeMove —— 所以新游戏 / 直接运行主关卡
+    /// 进场都是自由移动；存过档则按存档恢复（Ready / FreeMove / PrepareShop）。
     /// MainStage._Ready 读它决定初始阶段，MainStage.SetPhase 每次切阶段都写回它，SaveNow 落盘。</summary>
-    public static bool InFreeMove = true;
+    public static SavePhase Phase = SavePhase.FreeMove;
+
+    /// <summary>「是否在自由移动」的便捷读写（兼容旧 API / 测试）：读 = Phase == FreeMove；
+    /// 写 true → FreeMove，false → Ready。</summary>
+    public static bool InFreeMove
+    {
+        get => Phase == SavePhase.FreeMove;
+        set => Phase = value ? SavePhase.FreeMove : SavePhase.Ready;
+    }
+
+    /// <summary>卖鱼定价（FishDef.Id → 标价）：价格板填写，随存档保存。</summary>
+    public static readonly Dictionary<long, int> ShopPrices = [];
+
+    /// <summary>上一场卖鱼的确定性种子（hash 派生）。-1 = 还没卖过。</summary>
+    public static long LastSellSeed = -1;
 
     /// <summary>玩家当前位置（世界坐标）：MainStage 每帧回写，SaveNow 时写进存档。
     /// 没进过主关卡 = null（存档不记位置，读档用场景默认出生点）。</summary>
@@ -85,7 +99,6 @@ public sealed partial class SaveManager : Node
         if (data.Held != null) ApplyHeld(data.Held);   // 手是 autoload，跨场景存活，现在就拿上
         _pendingWarehouses = data.Warehouses;
         ActiveSlot = slot;
-        InFreeMove = data.InFreeMove;   // 存档里记的自由移动状态：是 → 进场仍在自由移动；否 → 直接进「准备钓鱼」
         WriteLastSlot(slot);
         GD.Print($"[Save] 已读取槽「{slot}」");
         return true;
@@ -99,7 +112,9 @@ public sealed partial class SaveManager : Node
         FishEncyclopediaLog.ClearAll();
         _pendingWarehouses = null;   // 全新仓库：主关卡按空仓起步
         HeldItemController.Instance?.DiscardHeld();
-        InFreeMove = true;           // 新游戏：进场让玩家处于自由移动（走去椅子坐下钓鱼），并随存档保存
+        Phase = SavePhase.FreeMove;   // 新游戏：进场让玩家处于自由移动，并随存档保存
+        ShopPrices.Clear();           // 新游戏：定价清空
+        LastSellSeed = -1;
         PlayerPosition = null;       // 新游戏：不记旧位置，从场景默认出生点开始
         _pendingPlayerPosition = null;
         SaveNow(slot);
@@ -120,12 +135,15 @@ public sealed partial class SaveManager : Node
     {
         return new SaveFile
         {
-            Version = 3,
+            Version = 4,
             SavedAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds(),
             Language = Localizer.CurrentLanguage,
             Money = Money,
             TotalCaught = TotalCaught,
-            InFreeMove = InFreeMove,
+            InFreeMove = Phase == SavePhase.FreeMove,   // 兼容旧字段（v4 起以 Phase 为准）
+            Phase = (int)Phase,
+            ShopPrices = [.. ShopPrices.Select(kv => new ShopPriceSave { FishId = kv.Key, Price = kv.Value })],
+            LastSellSeed = LastSellSeed,
             PlayerX = PlayerPosition?.X,
             PlayerY = PlayerPosition?.Y,
             Encyclopedia = FishEncyclopediaLog.Snapshot(),
@@ -152,7 +170,15 @@ public sealed partial class SaveManager : Node
         Localizer.SetLanguage(string.IsNullOrEmpty(data.Language) ? Localizer.DefaultLanguage : data.Language);
         Money = data.Money;
         TotalCaught = data.TotalCaught;
-        InFreeMove = data.InFreeMove;
+        // v4 起以 Phase 为准；旧档（Phase = -1）回退看 InFreeMove（true = 自由移动，false = 准备钓鱼）。
+        Phase = data.Phase >= 0
+            ? (SavePhase)data.Phase
+            : data.InFreeMove ? SavePhase.FreeMove : SavePhase.Ready;
+        ShopPrices.Clear();
+        if (data.ShopPrices != null)
+            foreach (var p in data.ShopPrices)
+                ShopPrices[p.FishId] = p.Price;
+        LastSellSeed = data.LastSellSeed;
         _pendingPlayerPosition = ToPlayerPosition(data);
         FishEncyclopediaLog.Restore(data.Encyclopedia);
     }
