@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://drtqrji7acn04" path="res://Data/Inventory/Items/SartineItem.tres" id="4_5cet1"]
 [ext_resource type="Resource" path="res://Data/Fishing/Baits/WormBait.tres" id="4_bait"]
 [ext_resource type="SpriteFrames" uid="uid://5nxcl210qc2q" path="res://Assets/Fish/Sardine/SardineAnim.tres" id="5_fhgvs"]
-[ext_resource type="Resource" path="res://Data/Fishing/Strategies/ClassicBehavior.tres" id="6_behavior_strategy"]
+[ext_resource type="Resource" uid="uid://uot2b77qcwpn" path="res://Data/Fishing/Strategies/ClassicBehavior.tres" id="6_behavior_strategy"]
 [ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="7_bekis"]
 [ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="7_struggle"]
 [ext_resource type="Resource" path="res://Data/Fishing/Tags/Delicious.tres" id="7_tag"]

@@ -5,13 +5,13 @@
 [ext_resource type="Resource" path="res://Data/Fishing/Hooks/BasicHook.tres" id="3_pddrh"]
 [ext_resource type="Resource" uid="uid://bul4wsogeoufk" path="res://Data/Inventory/Items/SunfishItem.tres" id="4_o33yd"]
 [ext_resource type="Resource" path="res://Data/Fishing/Tags/Delicious.tres" id="5_livebait"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/Rare.tres" id="11_tag"]
-[ext_resource type="Resource" path="res://Data/Fishing/Tags/Magic.tres" id="12_tag2"]
 [ext_resource type="SpriteFrames" uid="uid://bawkrb1t22k3o" path="res://Assets/Fish/MolaMola/MolaMolaAnim.tres" id="7_22k2n"]
 [ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="8_44w5a"]
 [ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="9_uhhgo"]
 [ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="10_nmys2"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Rare.tres" id="11_tag"]
 [ext_resource type="Script" uid="uid://dyksfmej1k2qt" path="res://Scripts/Fishing/FishDef.cs" id="12_ojist"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Magic.tres" id="12_tag2"]
 
 [resource]
 script = ExtResource("12_ojist")

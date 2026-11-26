@@ -76,4 +76,3 @@ shop.result.customer_empty,{0}（预算 {1}）：没有购买,{0} (budget {1}): 
 shop.result.customer_item,　　{0} @ {1},{0} @ {1}
 shop.prepare.enter,已到鱼店：把鱼护里的鱼放进仓库，标好价再卖。,At the shop: move fish into warehouses, set prices, then sell.
 shop.sold.done,卖鱼完成，收入 {0} 金币,Finished selling: +{0} gold
-ui.priceboard,价格板,Price Board

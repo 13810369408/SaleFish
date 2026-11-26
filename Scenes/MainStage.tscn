@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://d2kwi2fdygnaf"]
 
 [ext_resource type="Script" uid="uid://bqdlg2jqy4hqw" path="res://Scripts/Main/MainStage.cs" id="1_main"]
+[ext_resource type="Texture2D" uid="uid://cc1xsjs7y0407" path="res://Assets/SceneImage/FishKeep.png" id="3_xcpgi"]
 [ext_resource type="Texture2D" uid="uid://oxnqhnreyg80" path="res://Assets/SceneImage/Scene.png" id="6_8ie50"]
-[ext_resource type="Texture2D" uid="uid://3g27a512k1qj" path="res://Assets/SceneImage/BoxButton.png" id="7_8ie50"]
+[ext_resource type="Texture2D" uid="uid://d35t8hh5tk7ew" path="res://Assets/SceneImage/FishShop.png" id="7_2e0lr"]
 [ext_resource type="Texture2D" uid="uid://b6oxvha1iqxv3" path="res://Assets/SceneImage/Player.png" id="7_y23v6"]
 [ext_resource type="Resource" path="res://Data/Fishing/Hooks/BasicHook.tres" id="9_41sam"]
 [ext_resource type="Resource" path="res://Data/Fishing/Baits/WormBait.tres" id="10_8qbs2"]
@@ -19,12 +20,12 @@
 [ext_resource type="Script" uid="uid://bsj63vfccy7e4" path="res://Scripts/Fishing/FishingSpot.cs" id="20_spot"]
 [ext_resource type="Texture2D" uid="uid://cs0v6imyrrukf" path="res://Assets/SceneImage/Chair.png" id="21_chair"]
 [ext_resource type="PackedScene" path="res://Scenes/SitFishTooltip.tscn" id="22_sittip"]
-[ext_resource type="Texture2D" uid="uid://bydear0v1nji4" path="res://Assets/SceneImage/Chest.png" id="23_chest"]
-[ext_resource type="Texture2D" uid="uid://c6sv5rrqor0sk" path="res://Assets/InventoryImage/Label.png" id="24_label"]
 [ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse1.tres" id="25_wh1"]
-[ext_resource type="Script" path="res://Scripts/Common/InteractZone.cs" id="31_interact"]
+[ext_resource type="Script" uid="uid://bglqvifgx3n8k" path="res://Scripts/Common/InteractZone.cs" id="31_interact"]
 [ext_resource type="PackedScene" path="res://Scenes/ShopUi.tscn" id="32_shopui"]
-[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="33_loc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shopdetect"]
+size = Vector2(280, 320)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_water"]
 size = Vector2(12000, 5500)
@@ -37,9 +38,6 @@ size = Vector2(3722, 121)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_spotdetect"]
 size = Vector2(191, 157)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_shopdetect"]
-size = Vector2(280, 320)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hook"]
 radius = 8.0
@@ -59,59 +57,38 @@ texture = ExtResource("6_8ie50")
 position = Vector2(-491, -43)
 
 [node name="FishKeep" type="Sprite2D" parent="." unique_id=436649623]
-position = Vector2(44.67, 103.865)
-scale = Vector2(6, 6)
-texture = ExtResource("7_8ie50")
+position = Vector2(45, 94)
+texture = ExtResource("3_xcpgi")
 script = ExtResource("18_whbtn")
 Storage = ExtResource("10_storage")
 UiHostPath = NodePath("../UI/Hud")
 WarehouseAnchorPath = NodePath("../WarehouseAnchor")
 
-[node name="ShopSpawn" type="Marker2D" parent="."]
+[node name="ShopSpawn" type="Marker2D" parent="." unique_id=1616468425]
 position = Vector2(-560, 60)
 
-[node name="FishKeepAtShop" type="Marker2D" parent="."]
+[node name="FishKeepAtShop" type="Marker2D" parent="." unique_id=1067471348]
 position = Vector2(-740, 80)
 
-[node name="FishShop" type="Node2D" parent="."]
-position = Vector2(-520, 71)
+[node name="FishShop" type="Node2D" parent="." unique_id=575000469]
+position = Vector2(-509, 2)
 script = ExtResource("31_interact")
 
-[node name="Sprite" type="Sprite2D" parent="FishShop"]
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("23_chest")
+[node name="Sprite" type="Sprite2D" parent="FishShop" unique_id=324776852]
+texture = ExtResource("7_2e0lr")
 
-[node name="Detect" type="Area2D" parent="FishShop"]
+[node name="Detect" type="Area2D" parent="FishShop" unique_id=1069377074]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FishShop/Detect"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FishShop/Detect" unique_id=1827492027]
 shape = SubResource("RectangleShape2D_shopdetect")
 
-[node name="Highlight" type="Line2D" parent="FishShop"]
+[node name="Highlight" type="Line2D" parent="FishShop" unique_id=1356151648]
 visible = false
 points = PackedVector2Array(-150, -170, 150, -170, 150, 170, -150, 170, -150, -170)
 width = 6.0
 default_color = Color(0.4, 1, 0.6, 1)
 
-[node name="PriceBoard" type="Sprite2D" parent="."]
-position = Vector2(-660, 40)
-scale = Vector2(6, 6)
-texture = ExtResource("24_label")
-
-[node name="BoardLabel" type="Label" parent="PriceBoard"]
-offset_left = -60.0
-offset_top = -110.0
-offset_right = 60.0
-offset_bottom = -70.0
-theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
-theme_override_font_sizes/font_size = 22
-text = "价格板"
-horizontal_alignment = 1
-
-[node name="LocalizedText" type="Node" parent="PriceBoard/BoardLabel"]
-script = ExtResource("33_loc")
-LocalizationKey = "ui.priceboard"
-
-[node name="ShopWarehouse" type="Sprite2D" parent="."]
+[node name="ShopWarehouse" type="Sprite2D" parent="." unique_id=1970323758]
 visible = false
 position = Vector2(-520, 71)
 script = ExtResource("18_whbtn")
@@ -119,7 +96,7 @@ Storage = ExtResource("25_wh1")
 UiHostPath = NodePath("../UI/Hud")
 WarehouseAnchorPath = NodePath("../ShopWarehouseAnchor")
 
-[node name="ShopWarehouseAnchor" type="Marker2D" parent="."]
+[node name="ShopWarehouseAnchor" type="Marker2D" parent="." unique_id=1509336675]
 position = Vector2(-420, 0)
 
 [node name="Water" type="Area2D" parent="." unique_id=436649624]
@@ -231,8 +208,8 @@ mouse_filter = 2
 [node name="MenuUi" parent="UI/Hud" unique_id=1439060888 instance=ExtResource("19_menuui")]
 layout_mode = 1
 
-[node name="SitFishTooltip" parent="UI/Hud" instance=ExtResource("22_sittip")]
-layout_mode = 0
+[node name="SitFishTooltip" parent="UI/Hud" unique_id=1358873781 instance=ExtResource("22_sittip")]
+anchors_preset = 0
 
-[node name="ShopUi" parent="UI/Hud" instance=ExtResource("32_shopui")]
+[node name="ShopUi" parent="UI/Hud" unique_id=1724617469 instance=ExtResource("32_shopui")]
 layout_mode = 1

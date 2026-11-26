@@ -479,10 +479,10 @@ public sealed partial class TestMainStage : Node
     }
 
     /// <summary>
-    /// 「退出钓鱼」→ 传送到鱼店（准备开店）+ 钓鱼点交互：
-    ///  ▪ 点「退出钓鱼」：玩家 + 鱼护 一起到鱼店，阶段 = PrepareShop（不再切自由移动）；
-    ///  ▪ 玩家可走回钓鱼点：范围外点椅子无效；范围内点椅子 → 走向 → Ready，鱼护随之搬回原位；
-    ///  ▪ 高亮 / 「坐下钓鱼」提示在自由移动与准备开店阶段都有效。
+    /// 「退出钓鱼」→ 传送到鱼店（准备开店）：
+    ///  ▪ 玩家 + 鱼护 一起到鱼店，阶段 = PrepareShop（不再切自由移动）；
+    ///  ▪ 准备开店阶段玩家**不能移动**（A/D 与走向都不生效），要点椅子也不生效
+    ///    —— 只有 FreeMove 能走（卖完鱼后进入，见 TestShop 的后半段）。
     /// </summary>
     private void TestShopTeleportAndFishSpot()
     {
@@ -499,8 +499,6 @@ public sealed partial class TestMainStage : Node
             && shopSpawn != null && keepAtShop != null);
         if (player == null || spot == null) return;
 
-        var keepHome = keep?.GlobalPosition ?? Vector2.Zero;
-
         Check("准备开店前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
         Press(_exitFishButton);
         Check("点「退出钓鱼」：进入准备开店（PrepareShop）", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
@@ -511,39 +509,20 @@ public sealed partial class TestMainStage : Node
             keep != null && keepAtShop != null && keep.GlobalPosition.DistanceTo(keepAtShop.GlobalPosition) < 2f);
         Check("准备开店：「退出钓鱼」按钮隐藏", !_exitFishButton.Visible);
 
+        // ---- 准备开店阶段：玩家不能移动（StepPlayerMovement 不产生水平位移；只受重力落地）----
+        var beforeX = player.GlobalPosition.X;
+        for (var i = 0; i < 30; i++) _stage.StepPlayerMovement(1.0 / 60.0);
+        Check("准备开店：玩家不会水平移动（A/D 无效）",
+            Mathf.Abs(player.GlobalPosition.X - beforeX) < 1f);
+
+        // ---- 准备开店阶段：点椅子无效、也不亮高亮/不弹提示 ----
+        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 40f, player.GlobalPosition.Y);   // 强制放到椅子旁
+        ClickSpot();
+        Check("准备开店点椅子：不触发（阶段不变）", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
+        _stage.UpdateFishSpotUi(spot.GlobalPosition);
         var highlight = spot.GetNodeOrNull<Line2D>("Highlight");
-
-        // ---- 玩家在检测范围「外」：点椅子不触发，悬停也不显示提示 ----
-        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 400f, player.GlobalPosition.Y);
-        ClickSpot();
-        Check("范围外点椅子：不触发（仍准备开店）", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
-        _stage.UpdateFishSpotUi(spot.GlobalPosition);   // 鼠标落在椅子上，但玩家在范围外
-        Check("范围外：高亮关闭", highlight != null && !highlight.Visible);
-        if (tip != null) Check("范围外悬停椅子：不显示「坐下钓鱼」", !tip.Visible);
-
-        // ---- 玩家走进检测范围（高亮显示）----
-        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 40f, player.GlobalPosition.Y);   // 范围内、略偏
-        _stage.UpdateFishSpotUi(spot.GlobalPosition);
-        Check("范围内：高亮描边显示", highlight is { Visible: true });
-        if (tip != null) Check("范围内悬停椅子：显示「坐下钓鱼」", tip.Visible);
-
-        // ---- 范围内点椅子 → 走向钓鱼点 X → Ready ----
-        ClickSpot();
-        Check("范围内点椅子：开始走向", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
-        const double dt = 1.0 / 60.0;
-        for (var i = 0; i < 3000; i++)
-        {
-            _stage.StepPlayerMovement(dt);
-            if (_stage.Phase == Main.MainStage.GamePhase.Ready) break;   // 走到位即切 Ready
-        }
-        Check("走向后：玩家停在钓鱼点 X", Mathf.Abs(player.GlobalPosition.X - spot.GlobalPosition.X) < 4f);
-        Check("走向后：阶段切回「准备钓鱼」(Ready)", _stage.Phase == Main.MainStage.GamePhase.Ready);
-        Check("准备钓鱼状态写入存档标记（SaveManager.Phase = Ready）", SaveManager.Phase == SavePhase.Ready);
-        Check("回到 Ready：鱼护搬回钓鱼区原位", keep != null && keep.GlobalPosition.DistanceTo(keepHome) < 2f);
-
-        // 其它阶段：高亮关闭
-        _stage.UpdateFishSpotUi(spot.GlobalPosition);
-        Check("非自由移动/准备开店：高亮关闭", highlight != null && !highlight.Visible);
+        Check("准备开店：钓鱼点高亮关闭", highlight != null && !highlight.Visible);
+        if (tip != null) Check("准备开店：不显示「坐下钓鱼」提示", !tip.Visible);
     }
 
     /// <summary>

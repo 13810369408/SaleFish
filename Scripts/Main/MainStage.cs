@@ -726,8 +726,8 @@ public sealed partial class MainStage : Node2D
         if (HeldItemController.Instance?.HeldItem != null) return;
 
         // 自由移动 / 准备开店：不抛竿/不收线。只有「玩家已在钓鱼点检测范围内（高亮显示）」时，
-        // 左键点椅子才触发「坐下钓鱼」；其它点击不吃。（准备开店也能点椅子离开鱼店。）
-        if (Phase is GamePhase.FreeMove or GamePhase.PrepareShop)
+        // 左键点椅子才触发「坐下钓鱼」；其它点击不吃。（只有 FreeMove 能走到椅子旁；准备开店时玩家在鱼店。）
+        if (Phase == GamePhase.FreeMove)
         {
             if (_fishSpot != null && _player != null
                 && _fishSpot.IsPointInside(_player.GlobalPosition)   // 玩家必须先走到椅子旁（highlight 显示）
@@ -807,14 +807,14 @@ public sealed partial class MainStage : Node2D
 
     // ---- 自由移动：退出钓鱼 / 玩家移动 / 钓鱼点交互（获取/丢弃已移到 InventoryDemo 场景） ----
 
-    /// <summary>每帧玩家移动：自由移动 / 准备开店时 A/D 左右走 / 自动走到钓鱼点（到位切 Ready）；其余阶段静止。
+    /// <summary>每帧玩家移动：**只有自由移动阶段**能 A/D 左右走 / 自动走到钓鱼点（到位切 Ready）；其余阶段静止。
     /// CharacterBody2D 带下落重力，踩在场景 Ground 上站稳。暴露给测试可注入 delta 直接步进。</summary>
     public void StepPlayerMovement(double delta)
     {
         if (_player == null || !IsInstanceValid(_player)) return;
 
         // 自动走到钓鱼点：直接位移（确定性，测试友好；不做物理，避免被地面碰撞干扰走向）。
-        if (Phase is GamePhase.FreeMove or GamePhase.PrepareShop && _walkingToSpot)
+        if (Phase == GamePhase.FreeMove && _walkingToSpot)
         {
             var dx = _walkTargetX - _player.GlobalPosition.X;
             var step = Mathf.Clamp(Mathf.Sign(dx) * WalkSpeed * (float)delta, -Mathf.Abs(dx), Mathf.Abs(dx));
@@ -831,9 +831,9 @@ public sealed partial class MainStage : Node2D
             return;
         }
 
-        // 自由移动 / 准备开店的 A/D 左右走 / 其它阶段静止：CharacterBody2D 带重力，踩在地面 Ground 上站稳。
+        // 自由移动的 A/D 左右走 / 其它阶段一律静止：CharacterBody2D 带重力，踩在地面 Ground 上站稳。
         var moveX = 0f;
-        if (Phase is GamePhase.FreeMove or GamePhase.PrepareShop)
+        if (Phase == GamePhase.FreeMove)
         {
             if (Input.IsPhysicalKeyPressed(Key.A)) moveX -= WalkSpeed;
             if (Input.IsPhysicalKeyPressed(Key.D)) moveX += WalkSpeed;
@@ -854,7 +854,7 @@ public sealed partial class MainStage : Node2D
         var spot = _fishSpot;
         if (spot == null) return;
 
-        if (Phase is not (GamePhase.FreeMove or GamePhase.PrepareShop) || _player == null)
+        if (Phase != GamePhase.FreeMove || _player == null)
         {
             spot.SetHighlight(false);
             _sitFishTooltip?.Hide();

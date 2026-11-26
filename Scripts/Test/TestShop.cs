@@ -275,6 +275,37 @@ public sealed partial class TestShop : Node
         Check("点「结束」→ 进入自由移动", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
         Check("自由移动：「开始卖鱼」按钮隐藏", !startButton.Visible);
         Check("自由移动阶段随存档保存", SaveManager.Phase == SavePhase.FreeMove);
+
+        // 自由移动阶段：走回钓鱼点坐下 → Ready，鱼护自动搬回钓鱼区
+        var player = _stage.GetNodeOrNull<CharacterBody2D>("Player");
+        var spot = _stage.GetNodeOrNull<FishingSpot>("FishingSpot");
+        var keepSprite = _stage.GetNodeOrNull<Sprite2D>("FishKeep");
+        Check("自由移动前置：Player / FishingSpot / 鱼护 存在",
+            player != null && spot != null && keepSprite != null);
+        if (player == null || spot == null) return;
+        var keepAtShopPos = keepSprite?.GlobalPosition ?? Vector2.Zero;
+        var highlight = spot.GetNodeOrNull<Line2D>("Highlight");
+
+        // 范围外点椅子无效
+        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 400f, player.GlobalPosition.Y);
+        ClickWorld(spot.GlobalPosition);
+        Check("自由移动·范围外点椅子：不触发", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
+        _stage.UpdateFishSpotUi(spot.GlobalPosition);
+        Check("自由移动·范围外：高亮关闭", highlight != null && !highlight.Visible);
+
+        // 范围内：高亮 + 点椅子 → 走向 → Ready
+        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 40f, player.GlobalPosition.Y);
+        _stage.UpdateFishSpotUi(spot.GlobalPosition);
+        Check("自由移动·范围内：高亮显示", highlight is { Visible: true });
+        ClickWorld(spot.GlobalPosition);
+        for (var i = 0; i < 3000; i++)
+        {
+            _stage.StepPlayerMovement(1.0 / 60.0);
+            if (_stage.Phase == Main.MainStage.GamePhase.Ready) break;
+        }
+        Check("自由移动点椅子：走向钓鱼点并进入 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("回到 Ready：鱼护搬回钓鱼区（离开鱼店位置）",
+            keepSprite != null && keepSprite.GlobalPosition.DistanceTo(keepAtShopPos) > 10f);
     }
 
     // ---------- 工具 ----------
