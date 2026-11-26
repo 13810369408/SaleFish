@@ -29,6 +29,14 @@ public sealed partial class SaveManager : Node
     /// MainStage._Ready 读它决定初始阶段，MainStage.SetPhase 每次切阶段都写回它，SaveNow 落盘。</summary>
     public static bool InFreeMove = true;
 
+    /// <summary>玩家当前位置（世界坐标）：MainStage 每帧回写，SaveNow 时写进存档。
+    /// 没进过主关卡 = null（存档不记位置，读档用场景默认出生点）。</summary>
+    public static Vector2? PlayerPosition;
+
+    /// <summary>读档暂存的玩家位置：主菜单里读档时场上还没有玩家，等主关卡 _Ready 调
+    /// <see cref="ConsumePendingPlayerPosition"/> 摆放。取走即清空。</summary>
+    private static Vector2? _pendingPlayerPosition;
+
     /// <summary>读档暂存的仓库内容：主菜单里读档时场上还没有仓库按钮，要等主关卡 _Ready（按钮就位后）
     /// 经 <see cref="ApplyPendingWarehouses"/> 铺回场景；还原完即清空。</summary>
     private static List<WarehouseSave>? _pendingWarehouses;
@@ -92,6 +100,8 @@ public sealed partial class SaveManager : Node
         _pendingWarehouses = null;   // 全新仓库：主关卡按空仓起步
         HeldItemController.Instance?.DiscardHeld();
         InFreeMove = true;           // 新游戏：进场让玩家处于自由移动（走去椅子坐下钓鱼），并随存档保存
+        PlayerPosition = null;       // 新游戏：不记旧位置，从场景默认出生点开始
+        _pendingPlayerPosition = null;
         SaveNow(slot);
     }
 
@@ -110,12 +120,14 @@ public sealed partial class SaveManager : Node
     {
         return new SaveFile
         {
-            Version = 2,
+            Version = 3,
             SavedAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds(),
             Language = Localizer.CurrentLanguage,
             Money = Money,
             TotalCaught = TotalCaught,
             InFreeMove = InFreeMove,
+            PlayerX = PlayerPosition?.X,
+            PlayerY = PlayerPosition?.Y,
             Encyclopedia = FishEncyclopediaLog.Snapshot(),
             Held = BuildHeldSnapshot(),
             Warehouses = BuildWarehouseSnapshots(),
@@ -141,7 +153,21 @@ public sealed partial class SaveManager : Node
         Money = data.Money;
         TotalCaught = data.TotalCaught;
         InFreeMove = data.InFreeMove;
+        _pendingPlayerPosition = ToPlayerPosition(data);
         FishEncyclopediaLog.Restore(data.Encyclopedia);
+    }
+
+    /// <summary>存档里的玩家位置（两端都有才算）；旧档没有 = null（用场景默认出生点）。</summary>
+    private static Vector2? ToPlayerPosition(SaveFile data) =>
+        data.PlayerX is { } x && data.PlayerY is { } y ? new Vector2(x, y) : null;
+
+    /// <summary>主关卡 _Ready 调用：取出读档暂存的玩家位置（没有则 null）并清空——
+    /// 只摆一次，之后无关的场景重载不会把玩家又拽回旧位置。</summary>
+    public static Vector2? ConsumePendingPlayerPosition()
+    {
+        var pending = _pendingPlayerPosition;
+        _pendingPlayerPosition = null;
+        return pending;
     }
 
     /// <summary>最近一次存档的槽（主菜单「继续游戏」用）：优先 LastSlot（文件已删则取修改时间最新的槽）；全空返回 null。</summary>

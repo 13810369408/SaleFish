@@ -141,6 +141,43 @@ public sealed partial class TestMainStage : Node
         TestFishingPhaseLocksWarehouse();
         TestFreeMoveAndFishSpot();
         TestMouseWorldWithCamera();
+        TestPlayerPositionRoundTrip();
+    }
+
+    /// <summary>玩家位置随存档保存 / 读档恢复：位置写进快照；读档先暂存，主关卡 _Ready 摆到玩家身上
+    /// （镜头一并横移到玩家 X，Ready 阶段镜头不跟随玩家，否则一进场看不到人）。</summary>
+    private void TestPlayerPositionRoundTrip()
+    {
+        const string slot = "tst_pos_mainstage";
+
+        // ---- 1. 保存：主关卡回写的位置 → 快照 → 落盘 ----
+        SaveManager.PlayerPosition = new Vector2(432.5f, -12f);
+        var snapshot = SaveManager.BuildSnapshot();
+        Check("快照记录玩家位置", snapshot.PlayerX == 432.5f && snapshot.PlayerY == -12f);
+        SaveService.Save(slot, snapshot);
+
+        // ---- 2. 读档：位置进暂存区，只取一次 ----
+        SaveManager.PlayerPosition = null;
+        Check("读档成功", SaveManager.LoadSlot(slot));
+        var pending = SaveManager.ConsumePendingPlayerPosition();
+        Check("读档：玩家位置进入暂存区", pending is { } p && p.DistanceTo(new Vector2(432.5f, -12f)) < 0.01f);
+        Check("暂存位置取一次即清空（不会重复摆）", SaveManager.ConsumePendingPlayerPosition() == null);
+        SaveService.Delete(slot);
+
+        // ---- 3. 进主关卡：_Ready 把暂存位置摆到玩家身上 ----
+        SaveManager.Apply(new SaveFile { InFreeMove = true, PlayerX = 900f, PlayerY = 100f });
+        var stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn").Instantiate<Main.MainStage>();
+        AddChild(stage);
+        var player = stage.GetNodeOrNull<CharacterBody2D>("Player");
+        var camera = stage.GetNodeOrNull<Camera2D>("Camera2D");
+        Check("读档进场：玩家回到存档位置",
+            player != null && player.GlobalPosition.DistanceTo(new Vector2(900f, 100f)) < 0.5f);
+        Check("读档进场：镜头横移到玩家 X", camera != null && Mathf.Abs(camera.Position.X - 900f) < 0.5f);
+        Check("进场后位置回写到 SaveManager（下次保存带当前位置）",
+            SaveManager.PlayerPosition is { } live && live.DistanceTo(new Vector2(900f, 100f)) < 0.5f);
+        Check("没有暂存位置（新游戏 / 直接运行场景）→ 保持场景默认出生点",
+            SaveManager.ConsumePendingPlayerPosition() == null);
+        stage.QueueFree();
     }
 
     /// <summary>仓库模态规则：打开仓库时的「仓库页面以外」左键点击行为（详见 MainStage 类文档）——

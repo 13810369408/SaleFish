@@ -252,6 +252,15 @@ public sealed partial class MainStage : Node2D
         //  假 = 「准备钓鱼」（存档时正坐在钓鱼点上）。
         SetPhase(SaveManager.InFreeMove ? GamePhase.FreeMove : GamePhase.Ready);
         if (Phase == GamePhase.FreeMove) _status.Text = Localizer.T("status.freemove");
+
+        // 读档/续档：把存档里的玩家位置摆回来（新游戏 / 直接运行本场景 = null，保持场景默认出生点）。
+        // 镜头一并横移到玩家 X——Ready 时镜头不跟随玩家，否则一进场可能看不到人。
+        if (_player != null && SaveManager.ConsumePendingPlayerPosition() is { } savedPos)
+        {
+            _player.GlobalPosition = savedPos;
+            if (_camera != null) _camera.Position = new Vector2(savedPos.X, _camera.Position.Y);
+        }
+        SaveManager.PlayerPosition = _player?.GlobalPosition;   // 首次保存即可带上位置（之后每帧刷新）
         RefreshButtons();
     }
 
@@ -288,6 +297,7 @@ public sealed partial class MainStage : Node2D
         StepCameraFollow(delta);
         UpdateFishingLine(delta);
         StepPlayerMovement(delta);   // 自由移动：A/D 行走 / 自动走去坐下；其余阶段静止落地
+        if (_player != null) SaveManager.PlayerPosition = _player.GlobalPosition;   // 存档用：每帧记当前位置
         UpdateFishSpotUi();          // 钓鱼点高亮描边 + 「坐下钓鱼」悬浮提示跟随鼠标
         UpdateExitFishButtonPosition();   // 「退出钓鱼」按钮钉在钓鱼点附近（仅 Ready 显示）
         // 自由移动时镜头柔和跟随玩家 X（避免走动着出屏；走回钓鱼点后镜头就停在钓鱼点附近）。

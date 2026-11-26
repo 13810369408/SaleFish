@@ -14,8 +14,9 @@ namespace SaleFish.Save;
 public sealed class SaveFile
 {
     /// <summary>存档格式版本：将来字段变更时用它在读档处做迁移/补默认。
-    /// v2 = 新增 <see cref="InFreeMove"/>（v1 旧档缺该字段 → 用字段默认值 true，即进场自由移动）。</summary>
-    public int Version = 2;
+    /// v2 = 新增 <see cref="InFreeMove"/>（v1 旧档缺该字段 → 用字段默认值 true，即进场自由移动）。
+    /// v3 = 新增 <see cref="PlayerX"/>/<see cref="PlayerY"/>（旧档为 null → 用场景默认出生点）。</summary>
+    public int Version = 3;
 
     /// <summary>保存时刻（unix 秒），槽位列表显示用。</summary>
     public long SavedAt;
@@ -33,6 +34,12 @@ public sealed class SaveFile
     /// 默认 true：旧档没有这个字段时也用默认值 → 读进来是自由移动（与「默认状态 = 自由移动」一致）。
     /// 存 false 表示当时坐在钓鱼点「准备钓鱼」，读档直接进 Ready。</summary>
     public bool InFreeMove = true;
+
+    /// <summary>玩家位置（世界坐标 X）。null = 没记录（旧档 / 从没进过主关卡）→ 读档用场景默认出生点。</summary>
+    public float? PlayerX;
+
+    /// <summary>玩家位置（世界坐标 Y）。与 <see cref="PlayerX"/> 成对。</summary>
+    public float? PlayerY;
 
     /// <summary>图鉴记录：遇到/钓到的鱼（有条目 = 已见，Caught 置位 = 钓到过）。</summary>
     public List<EncyclopediaSave> Encyclopedia = [];
