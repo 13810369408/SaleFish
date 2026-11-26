@@ -128,7 +128,8 @@ public sealed partial class TestSave : Node
         SaveManager.TotalCaught = 2;
         var built = SaveManager.BuildSnapshot();
         Check("BuildSnapshot：金币/钓获/语言写入", built.Money == 9 && built.TotalCaught == 2 && built.Language.Length > 0);
-        Check("BuildSnapshot：持久化目录之外的字段有默认", built.Version == 1 && built.Held == null);
+        Check("BuildSnapshot：持久化目录之外的字段有默认", built.Version == 2 && built.Held == null);
+        Check("BuildSnapshot：自由移动状态写入（默认 true = 开局自由移动）", built.InFreeMove);
         Check("BuildSnapshot：图鉴随日志走（fishA 已见）",
             built.Encyclopedia.Any(r => r.FishId == fishA));
 
@@ -138,16 +139,20 @@ public sealed partial class TestSave : Node
         Check("NewGame：落盘 + 清空经济", SaveService.Exists(slot2) && SaveManager.Money == 0 && SaveManager.TotalCaught == 0);
         Check("NewGame：记录上次槽（供「继续游戏」）", SaveManager.LastSlot == slot2);
         Check("NewGame：图鉴清空", !FishEncyclopediaLog.IsSeen(fishA));
+        Check("NewGame：记录为自由移动开局", SaveManager.InFreeMove);
         Check("读不存在的槽返回 false（不做任何改变）",
             !SaveManager.LoadSlot("no_such_slot_" + slot2) && SaveManager.Money == 0);
 
         SaveManager.Money = 77;
+        SaveManager.InFreeMove = false;   // 造一个「当时正坐在钓鱼点准备钓鱼」的状态，读档应原样恢复
         SaveManager.SaveNow(slot2);
         SaveManager.Money = 0;
         SaveManager.TotalCaught = 0;
+        SaveManager.InFreeMove = true;
         FishEncyclopediaLog.See(fishB, 5f);   // 造一条运行态变化，读档应还原
         var loaded = SaveManager.LoadSlot(slot2);
         Check("LoadSlot：成功 + 恢复金币/钓获", loaded && SaveManager.Money == 77 && SaveManager.ActiveSlot == slot2);
+        Check("LoadSlot：恢复「准备钓鱼」阶段标记（InFreeMove = false）", !SaveManager.InFreeMove);
         Check("LoadSlot：图鉴还原为存档内容（运行期新增的鱼 B 被存档内容覆盖清掉）",
             !FishEncyclopediaLog.IsSeen(fishB));
         SaveService.Delete(slot2);

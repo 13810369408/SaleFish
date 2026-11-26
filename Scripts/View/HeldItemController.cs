@@ -110,8 +110,9 @@ public sealed partial class HeldItemController : Node
         HeldVisPos = GlobalMouse() - _grabPixelOffset;
     }
 
-    /// <summary>当前全局鼠标位置（画布坐标）：优先经任一在用仓库视图取（GetGlobalMousePosition 只在
-    /// CanvasItem 上），无任何仓库时回退 Viewport.GetMousePosition（本游戏无相机/画布变换，两者等价）。</summary>
+    /// <summary>当前鼠标位置（<b>视口/屏幕坐标</b>，不是世界坐标）：手持/仓库整套 UI 都在 CanvasLayer 里，
+    /// 画布层不受 Camera2D 影响，所以这里必须用屏幕坐标对齐；用 Common.MouseWorld 换成的世界坐标反而会随相机偏移。
+    /// （需要世界坐标的地方——比如主关卡判断鼠标是否落在钓鱼点检测框里——才用 Common.MouseWorld。）</summary>
     private Vector2 GlobalMouse()
     {
         var view = WarehouseRegistry.LastView();

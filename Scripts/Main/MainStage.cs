@@ -1,4 +1,5 @@
 using Godot;
+using SaleFish.Common;
 using SaleFish.Fishing;
 using SaleFish.Inventory;
 using SaleFish.Localization;
@@ -74,11 +75,13 @@ public sealed partial class MainStage : Node2D
     /// <summary>当前行为阶段（公开只读，测试断言用）。</summary>
     public GamePhase Phase { get; private set; } = GamePhase.Ready;
 
-    /// <summary>切换行为阶段（同值跳过，幂等）。</summary>
+    /// <summary>切换行为阶段（同值跳过，幂等）。阶段会随存档保存（FreeMove / 其余一律读回 Ready）。</summary>
     private void SetPhase(GamePhase next)
     {
         if (Phase == next) return;
         Phase = next;
+        // 存进存档的只有「自由移动 / 不是自由移动」：Fishing 是过程态，读到一律以 Ready 进场。
+        SaveManager.InFreeMove = next == GamePhase.FreeMove;
     }
 
     /// <summary>钓上鱼时自动打开的仓库按钮（路径）：场景里的一个挂 WarehouseButton 组件的仓库开/关节点
@@ -115,7 +118,11 @@ public sealed partial class MainStage : Node2D
     private FishingSpot? _fishSpot;          // 钓鱼点（场景 FishingSpot）
     private bool _walkingToSpot;             // 正在自动走到钓鱼点
     private float _walkTargetX;              // 走去坐下的目标 X
-    private Label _sitFishLabel = null!;     // 「坐下钓鱼」悬浮提示（跟随鼠标）
+
+    /// <summary>「坐下钓鱼」悬浮提示（prefab 实例，挂在 UI/Hud 下）的节点路径。
+    /// 外观与偏移都在 Scenes/SitFishTooltip.tscn 里改；这里只负责显示/隐藏。</summary>
+    [Export] public NodePath? SitFishTooltipPath = new("UI/Hud/SitFishTooltip");
+    private SitFishTooltip? _sitFishTooltip;   // 「坐下钓鱼」悬浮提示（跟随鼠标；prefab，UI/Hud 下）
 
     // ---- 钓鱼（蓄力/抛出/收线，无钓竿按钮——空手左键即抛竿） ----
     private Hook _hook = null!;
@@ -193,6 +200,11 @@ public sealed partial class MainStage : Node2D
         if (_hud == null)
             GD.PushWarning("[MainStage] 找不到 UI 层下的 Hud 控件：界面将挂回世界根并随镜头移动。");
 
+        // 「坐下钓鱼」悬浮提示：prefab 实例（Scenes/SitFishTooltip.tscn，场景里摆在 UI/Hud 下）。
+        _sitFishTooltip = GetNodeOrNull<SitFishTooltip>(SitFishTooltipPath);
+        if (_sitFishTooltip == null)
+            GD.PushWarning("[MainStage] 找不到「坐下钓鱼」悬浮提示（SitFishTooltipPath）：悬停时不显示提示。");
+
         _hook = GetNodeOrNull<Hook>("Hook");
         _water = GetNodeOrNull<Area2D>("Water");
         _camera = GetNodeOrNull<Camera2D>("Camera2D");
@@ -235,12 +247,11 @@ public sealed partial class MainStage : Node2D
         Localizer.LanguageChanged += OnLanguageChanged;
         OnHeldChanged(null);
 
-        // 新游戏开局 = 自由移动（SaveManager.StartInFreeMove 由 NewGame 置位）；读档/继续则从「准备钓鱼」开始。
-        if (SaveManager.StartInFreeMove)
-        {
-            SetPhase(GamePhase.FreeMove);
-            _status.Text = Localizer.T("status.freemove");
-        }
+        // 开局阶段 = 存档里记的阶段（SaveManager.InFreeMove，默认 true）：
+        //  真 = 自由移动（新游戏 / 直接运行主关卡 / 旧档）；
+        //  假 = 「准备钓鱼」（存档时正坐在钓鱼点上）。
+        SetPhase(SaveManager.InFreeMove ? GamePhase.FreeMove : GamePhase.Ready);
+        if (Phase == GamePhase.FreeMove) _status.Text = Localizer.T("status.freemove");
         RefreshButtons();
     }
 
@@ -258,7 +269,7 @@ public sealed partial class MainStage : Node2D
     private void OnLanguageChanged()
     {
         if (GodotObject.IsInstanceValid(_exitFishButton)) _exitFishButton.Text = Localizer.T("ui.exit_fishing");
-        if (GodotObject.IsInstanceValid(_sitFishLabel)) _sitFishLabel.Text = Localizer.T("ui.sit_fish");
+        // 「坐下钓鱼」提示的文案由 prefab 内的 LocalizedText 自己跟随语言，这里不用管。
         if (GodotObject.IsInstanceValid(_helpLabel)) _helpLabel.Text = Localizer.T("ui.help");
         OnHeldChanged(HeldItemController.Instance?.HeldItem);
         UpdateStruggleLabel();
@@ -561,17 +572,8 @@ public sealed partial class MainStage : Node2D
         _status = new Label { Name = "Status", Position = new Vector2(16, 60), Text = "" };
         ui.AddChild(_status);
 
-        // 「坐下钓鱼」悬浮提示：自由移动 + 鼠标悬停在钓鱼点上时显示，跟随鼠标。
-        _sitFishLabel = new Label
-        {
-            Name = "SitFishLabel",
-            Text = Localizer.T("ui.sit_fish"),
-            Visible = false,
-            MouseFilter = Control.MouseFilterEnum.Ignore,   // 纯提示，不吃点击
-        };
-        _sitFishLabel.AddThemeColorOverride("font_color", new Color(1f, 0.97f, 0.85f));
-        _sitFishLabel.AddThemeFontSizeOverride("font_size", 20);
-        ui.AddChild(_sitFishLabel);
+        // 「坐下钓鱼」悬浮提示不在这里创建：它是 prefab（Scenes/SitFishTooltip.tscn），
+        // 已作为子节点摆在场景的 UI/Hud 下（见 SitFishTooltipPath），外观在 prefab 里直接调。
 
         _helpLabel = new Label
         {
@@ -824,7 +826,7 @@ public sealed partial class MainStage : Node2D
         if (Phase != GamePhase.FreeMove || _player == null)
         {
             spot.SetHighlight(false);
-            _sitFishLabel.Visible = false;
+            _sitFishTooltip?.Hide();
             return;
         }
 
@@ -833,10 +835,11 @@ public sealed partial class MainStage : Node2D
         spot.SetHighlight(playerInRange);
 
         // 只有「玩家在范围内 + 鼠标悬停在钓鱼点上」才显示「坐下钓鱼」；悬浮框左上角贴鼠标。
+        // 鼠标坐标必须经相机变换（Common.MouseWorld）——直接拿 Viewport.GetMousePosition 当世界坐标会错位。
         var mouse = mouseWorld ?? GetGlobalMouseWorld();
         var hovering = playerInRange && spot.IsPointInside(mouse);
-        _sitFishLabel.Visible = hovering;
-        if (hovering) PlaceTooltipAtMouse(mouse);
+        if (hovering) _sitFishTooltip?.ShowAt(mouse);
+        else _sitFishTooltip?.Hide();
     }
 
     /// <summary>点击钓鱼点：让小玩家以行走速度自动走到钓鱼点 X，到位后切 Ready（抛竿可用）。</summary>
@@ -859,20 +862,8 @@ public sealed partial class MainStage : Node2D
         _exitFishButton.Position = local + ExitFishingButtonOffset;
     }
 
-    /// <summary>世界坐标 → Hud 本地坐标，悬浮提示左上角贴在该点（= 鼠标处）。</summary>
-    private void PlaceTooltipAtMouse(Vector2 mouseWorld)
-    {
-        if (_hud == null) return;
-        var screen = GetViewport().GetCanvasTransform() * mouseWorld;
-        _sitFishLabel.Position = _hud.GetGlobalTransformWithCanvas().AffineInverse() * screen;
-    }
-
-    /// <summary>当前全局鼠标世界坐标（画布坐标；与 HeldItemController.GlobalMouse 同做法）。</summary>
-    private Vector2 GetGlobalMouseWorld()
-    {
-        var view = WarehouseRegistry.LastView();
-        return view != null ? view.GetGlobalMousePosition() : GetViewport().GetMousePosition();
-    }
+    /// <summary>当前鼠标世界坐标（经相机/画布变换；见 Common.MouseWorld）。公开供测试断言换算正确。</summary>
+    public Vector2 GetGlobalMouseWorld() => MouseWorld.From(this);
 
     /// <summary>全局手状态变化（拿起/放下/钓上物品/隐藏还原）→ 刷新按钮与状态栏。</summary>
     private void OnHeldChanged(InventoryItem? held)

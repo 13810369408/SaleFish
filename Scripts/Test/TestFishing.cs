@@ -53,6 +53,8 @@ public sealed partial class TestFishing : Node
 
     public override void _Ready()
     {
+        // 开局阶段随存档走：本测试的既有断言都以「准备钓鱼」(Ready) 为前提（等价读一个坐在椅子上的档）。
+        SaleFish.Save.SaveManager.InFreeMove = false;
         _stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn")
             .Instantiate<Main.MainStage>();
         AddChild(_stage);

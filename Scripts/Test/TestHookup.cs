@@ -515,6 +515,8 @@ public sealed partial class TestHookup : Node
 
     private void TestMainStageEndToEnd()
     {
+        // 开局阶段随存档走：本段以「准备钓鱼」(Ready) 为前提。
+        SaleFish.Save.SaveManager.InFreeMove = false;
         var stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn").Instantiate<Main.MainStage>();
         AddChild(stage);
         stage.ProcessMode = ProcessModeEnum.Disabled;

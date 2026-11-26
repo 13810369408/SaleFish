@@ -1,6 +1,8 @@
 using Godot;
+using SaleFish.Common;
 using SaleFish.Fishing;
 using SaleFish.Inventory;
+using SaleFish.Save;
 using SaleFish.View;
 
 namespace SaleFish.Test;
@@ -37,6 +39,11 @@ public sealed partial class TestMainStage : Node
 
     public override void _Ready()
     {
+        // 开局阶段现在随存档走（SaveManager.InFreeMove，默认 true = 自由移动）。
+        Check("默认开局：SaveManager.InFreeMove 默认 true（直接运行主关卡 = 自由移动）", SaveManager.InFreeMove);
+        // 存量用例从「准备钓鱼」起步（等价「读了一个当时坐在椅子上的存档」），与新开局区分开。
+        SaveManager.InFreeMove = false;
+
         _stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn")
             .Instantiate<Main.MainStage>();
         AddChild(_stage);
@@ -133,6 +140,7 @@ public sealed partial class TestMainStage : Node
         TestCatchFirstOpenEndToEnd();
         TestFishingPhaseLocksWarehouse();
         TestFreeMoveAndFishSpot();
+        TestMouseWorldWithCamera();
     }
 
     /// <summary>仓库模态规则：打开仓库时的「仓库页面以外」左键点击行为（详见 MainStage 类文档）——
@@ -444,14 +452,16 @@ public sealed partial class TestMainStage : Node
     {
         var player = _stage.GetNodeOrNull<CharacterBody2D>("Player");
         var spot = _stage.GetNodeOrNull<FishingSpot>("FishingSpot");
-        var tip = _stage.FindChild("SitFishLabel", recursive: true, owned: false) as Label;
-        Check("自由移动前置：Player(CharacterBody2D) / FishingSpot / 悬浮提示 均存在",
+        // 悬浮提示是 prefab 实例（Scenes/SitFishTooltip.tscn），摆在 UI/Hud 下。
+        var tip = _stage.GetNodeOrNull<SitFishTooltip>("UI/Hud/SitFishTooltip");
+        Check("自由移动前置：Player(CharacterBody2D) / FishingSpot / 悬浮提示(prefab) 均存在",
             player != null && spot != null && tip != null);
         if (player == null || spot == null) return;
 
         Check("FreeMove 前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
         Press(_exitFishButton);
         Check("点「退出钓鱼」：进入自由移动（FreeMove）", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
+        Check("自由移动状态写入存档标记（SaveManager.InFreeMove）", SaveManager.InFreeMove);
         Check("FreeMove：退出钓鱼按钮隐藏", !_exitFishButton.Visible);
 
         var highlight = spot.GetNodeOrNull<Line2D>("Highlight");
@@ -481,10 +491,54 @@ public sealed partial class TestMainStage : Node
         }
         Check("走向后：玩家停在钓鱼点 X", Mathf.Abs(player.GlobalPosition.X - spot.GlobalPosition.X) < 4f);
         Check("走向后：阶段切回「准备钓鱼」(Ready)", _stage.Phase == Main.MainStage.GamePhase.Ready);
+        Check("准备钓鱼状态写入存档标记（SaveManager.InFreeMove = false，会随存档保存）", !SaveManager.InFreeMove);
 
         // 非 FreeMove 阶段：高亮关闭
         _stage.UpdateFishSpotUi(spot.GlobalPosition);
         Check("非 FreeMove：高亮关闭", highlight != null && !highlight.Visible);
+    }
+
+    /// <summary>
+    /// 坐标换算回归用例：相机不在原点时，屏幕坐标必须经「画布变换取逆」才是世界坐标。
+    /// 旧 bug = 直接把 Viewport.GetMousePosition（屏幕坐标）当世界坐标 → 屏幕左上角被误判落在钓鱼点检测框里、
+    /// 「坐下钓鱼」提示显示到椅子上。这里用「相机偏移 + 屏幕坐标」直接验证换算与提示定位。
+    /// </summary>
+    private void TestMouseWorldWithCamera()
+    {
+        var camera = _stage.GetNodeOrNull<Camera2D>("Camera2D");
+        var spot = _stage.GetNodeOrNull<FishingSpot>("FishingSpot");
+        var tip = _stage.GetNodeOrNull<SitFishTooltip>("UI/Hud/SitFishTooltip");
+        Check("坐标换算前置：Camera2D / FishingSpot / 悬浮提示(prefab) 均存在",
+            camera != null && spot != null && tip != null);
+        if (camera == null || spot == null || tip == null) return;
+
+        var viewport = _stage.GetViewport();
+        var half = viewport.GetVisibleRect().Size / 2f;
+        var savedCamera = camera.Position;
+        camera.Position = new Vector2(1200f, 400f);   // 故意把相机挪离原点
+        camera.ForceUpdateScroll();
+
+        // Drag Center 锚点：屏幕中心 = 相机位置。
+        var centerWorld = MouseWorld.FromScreen(viewport, half);
+        Check("屏幕中心换算成世界 = 相机位置", centerWorld.DistanceTo(new Vector2(1200f, 400f)) < 2f);
+
+        // 屏幕左上角 = 相机位置 - 半个视野，绝不是 (0,0)。
+        var cornerWorld = MouseWorld.FromScreen(viewport, Vector2.Zero);
+        Check("屏幕左上角换算成世界 = 相机位置 - 半视野",
+            cornerWorld.DistanceTo(new Vector2(1200f, 400f) - half) < 2f);
+        Check("屏幕左上角不再被当成世界原点 (0,0)", cornerWorld.DistanceTo(Vector2.Zero) > 100f);
+        Check("相机偏移时：屏幕左上角不在钓鱼点检测框内（旧 bug 会判在里面）", !spot.IsPointInside(cornerWorld));
+
+        // 悬浮提示定位：给世界坐标 → 屏幕位置应等于该世界点经画布变换的位置（相机偏移下仍贴着该点）。
+        var mouseWorld = spot.GlobalPosition;
+        tip.ShowAt(mouseWorld);
+        var expectedScreen = viewport.GetCanvasTransform() * mouseWorld;
+        Check("悬浮提示左上角 = 该世界点的屏幕位置（相机偏移下仍贴合）",
+            tip.GlobalPosition.DistanceTo(expectedScreen) < 2f);
+
+        camera.Position = savedCamera;
+        camera.ForceUpdateScroll();
+        tip.Hide();
     }
 
     /// <summary>合成一次落在世界坐标（画布变换后即屏幕坐标）的空手左键点击，直接派给主关卡 _UnhandledInput

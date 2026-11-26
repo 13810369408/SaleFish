@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/View/SitFishTooltip.cs" id="1_tip"]
+[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="2_loc"]
+
+[node name="SitFishTooltip" type="Control"]
+visible = false
+mouse_filter = 2
+script = ExtResource("1_tip")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 88.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(1, 0.97, 0.85, 1)
+theme_override_font_sizes/font_size = 20
+text = "坐下钓鱼"
+
+[node name="LocalizedText" type="Node" parent="Label"]
+script = ExtResource("2_loc")
+LocalizationKey = "ui.sit_fish"

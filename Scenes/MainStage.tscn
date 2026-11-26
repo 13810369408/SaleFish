@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://dr0jxiu165bla" path="res://Scenes/MenuUi.tscn" id="19_menuui"]
 [ext_resource type="Script" uid="uid://bsj63vfccy7e4" path="res://Scripts/Fishing/FishingSpot.cs" id="20_spot"]
 [ext_resource type="Texture2D" uid="uid://cs0v6imyrrukf" path="res://Assets/SceneImage/Chair.png" id="21_chair"]
+[ext_resource type="PackedScene" path="res://Scenes/SitFishTooltip.tscn" id="22_sittip"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_water"]
 size = Vector2(12000, 5500)
@@ -165,3 +166,6 @@ mouse_filter = 2
 
 [node name="MenuUi" parent="UI/Hud" unique_id=1439060888 instance=ExtResource("19_menuui")]
 layout_mode = 1
+
+[node name="SitFishTooltip" parent="UI/Hud" instance=ExtResource("22_sittip")]
+layout_mode = 0

@@ -58,6 +58,8 @@ public sealed partial class TestMenuUi : Node
     public override async void _Ready()
     {
         SeedPrefabFishForUnlock();   // 预置图鉴解锁状态：必须早于舞台实例化（MenuUi._Ready 会按日志过滤/点亮）
+        // 开局阶段随存档走：本测试以「准备钓鱼」(Ready) 为前提。
+        SaleFish.Save.SaveManager.InFreeMove = false;
         _stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn")
             .Instantiate<MainStage>();
         AddChild(_stage);

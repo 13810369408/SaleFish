@@ -110,6 +110,8 @@ public sealed partial class TestLocalization : Node
         if (ResourceLoader.Load<FishDef>("res://Data/Fishing/Fish/MolaMola.tres") is { } s4)
             FishEncyclopediaLog.See(s4.Id, 60f);
 
+        // 开局阶段随存档走：本测试以「准备钓鱼」(Ready) 为前提（状态栏文案等断言不受自由移动文案干扰）。
+        SaleFish.Save.SaveManager.InFreeMove = false;
         var stage = ResourceLoader.Load<PackedScene>("res://Scenes/MainStage.tscn").Instantiate<MainStage>();
         AddChild(stage);
         var menuButton = stage.GetNode<Button>("UI/Hud/MenuUi/MenuButton");
