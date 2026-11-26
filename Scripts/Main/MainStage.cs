@@ -702,11 +702,11 @@ public sealed partial class MainStage : Node2D
             return;
         }
 
-        // 准备开店阶段：点价格板 → 打开价格面板（仓库存放/拾取仍走仓库视图，互不冲突）。
-        if (Phase == GamePhase.PrepareShop && Shop.PriceBoard.HitTest(canvasPoint) is { } board)
+        // 准备开店阶段：点鱼店 = 仓库 + 价格板 一起开/关（在仓库按钮之后、仓库模态之前）。
+        if (Phase == GamePhase.PrepareShop && _fishShop != null && _fishShop.IsPointInside(canvasPoint))
         {
             GetViewport().SetInputAsHandled();
-            board.RaiseClicked();
+            ToggleShopPanels();
             return;
         }
 
@@ -777,6 +777,7 @@ public sealed partial class MainStage : Node2D
         if (view == null) return;
         if (view.OwnerButton is WarehouseButton btn) btn.Close();
         else view.Hide();
+        _shopUi?.ClosePriceBoard();   // 鱼店：仓库和价格板一起关
         _status.Text = Localizer.T("status.warehouse.close");
     }
 

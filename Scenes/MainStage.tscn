@@ -22,11 +22,6 @@
 [ext_resource type="Texture2D" uid="uid://bydear0v1nji4" path="res://Assets/SceneImage/Chest.png" id="23_chest"]
 [ext_resource type="Texture2D" uid="uid://c6sv5rrqor0sk" path="res://Assets/InventoryImage/Label.png" id="24_label"]
 [ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse1.tres" id="25_wh1"]
-[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse2.tres" id="26_wh2"]
-[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse3.tres" id="27_wh3"]
-[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse4.tres" id="28_wh4"]
-[ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse5.tres" id="29_wh5"]
-[ext_resource type="Script" path="res://Scripts/Shop/PriceBoard.cs" id="30_priceboard"]
 [ext_resource type="Script" path="res://Scripts/Common/InteractZone.cs" id="31_interact"]
 [ext_resource type="PackedScene" path="res://Scenes/ShopUi.tscn" id="32_shopui"]
 [ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="33_loc"]
@@ -101,7 +96,6 @@ default_color = Color(0.4, 1, 0.6, 1)
 position = Vector2(-660, 40)
 scale = Vector2(6, 6)
 texture = ExtResource("24_label")
-script = ExtResource("30_priceboard")
 
 [node name="BoardLabel" type="Label" parent="PriceBoard"]
 offset_left = -60.0
@@ -117,65 +111,16 @@ horizontal_alignment = 1
 script = ExtResource("33_loc")
 LocalizationKey = "ui.priceboard"
 
-[node name="Warehouse1" type="Sprite2D" parent="."]
-position = Vector2(-1340, 71)
-scale = Vector2(0.18, 0.18)
-texture = ExtResource("23_chest")
+[node name="ShopWarehouse" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-520, 71)
 script = ExtResource("18_whbtn")
 Storage = ExtResource("25_wh1")
 UiHostPath = NodePath("../UI/Hud")
-WarehouseAnchorPath = NodePath("../WarehouseAnchor1")
+WarehouseAnchorPath = NodePath("../ShopWarehouseAnchor")
 
-[node name="Warehouse2" type="Sprite2D" parent="."]
-position = Vector2(-1220, 71)
-scale = Vector2(0.18, 0.18)
-texture = ExtResource("23_chest")
-script = ExtResource("18_whbtn")
-Storage = ExtResource("26_wh2")
-UiHostPath = NodePath("../UI/Hud")
-WarehouseAnchorPath = NodePath("../WarehouseAnchor2")
-
-[node name="Warehouse3" type="Sprite2D" parent="."]
-position = Vector2(-1100, 71)
-scale = Vector2(0.18, 0.18)
-texture = ExtResource("23_chest")
-script = ExtResource("18_whbtn")
-Storage = ExtResource("27_wh3")
-UiHostPath = NodePath("../UI/Hud")
-WarehouseAnchorPath = NodePath("../WarehouseAnchor3")
-
-[node name="Warehouse4" type="Sprite2D" parent="."]
-position = Vector2(-980, 71)
-scale = Vector2(0.18, 0.18)
-texture = ExtResource("23_chest")
-script = ExtResource("18_whbtn")
-Storage = ExtResource("28_wh4")
-UiHostPath = NodePath("../UI/Hud")
-WarehouseAnchorPath = NodePath("../WarehouseAnchor4")
-
-[node name="Warehouse5" type="Sprite2D" parent="."]
-position = Vector2(-860, 71)
-scale = Vector2(0.18, 0.18)
-texture = ExtResource("23_chest")
-script = ExtResource("18_whbtn")
-Storage = ExtResource("29_wh5")
-UiHostPath = NodePath("../UI/Hud")
-WarehouseAnchorPath = NodePath("../WarehouseAnchor5")
-
-[node name="WarehouseAnchor1" type="Marker2D" parent="."]
-position = Vector2(-420, -280)
-
-[node name="WarehouseAnchor2" type="Marker2D" parent="."]
-position = Vector2(420, -280)
-
-[node name="WarehouseAnchor3" type="Marker2D" parent="."]
-position = Vector2(-420, 60)
-
-[node name="WarehouseAnchor4" type="Marker2D" parent="."]
-position = Vector2(420, 60)
-
-[node name="WarehouseAnchor5" type="Marker2D" parent="."]
-position = Vector2(0, -100)
+[node name="ShopWarehouseAnchor" type="Marker2D" parent="."]
+position = Vector2(-420, 0)
 
 [node name="Water" type="Area2D" parent="." unique_id=436649624]
 position = Vector2(6285, 773)

@@ -28,6 +28,12 @@ public sealed partial class InventoryView : Control
     /// <summary>已隐藏（Hide 后 Show 前）；确保 Hide/Show 可重复调用不串味。</summary>
     private bool _hidden;
 
+    /// <summary>本仓库能否整仓拖动（来自 <see cref="StorageTypeDef.CanDrag"/>，默认 false）。</summary>
+    private bool _canDrag;
+
+    /// <summary>按配置生成的关闭按钮（<see cref="StorageTypeDef.CloseButtonTexture"/> 为空时不存在）。</summary>
+    private TextureButton? _closeButton;
+
     /// <summary>本仓库视图的所属按钮（创建它的 WarehouseButton）：宿主「外部点击关仓」据此定位到按钮再关，
     /// 保证按钮的生命周期/位置记忆/事件一致。测试/演示直接 CreateStorage 建的视图无按钮（null），
     /// 宿主遇到时退化为直接 Hide。</summary>
@@ -51,6 +57,8 @@ public sealed partial class InventoryView : Control
         CellSize = cellSize;
         if (gridOffset.HasValue) GridOffset = gridOffset.Value;
         _storageLook = storageLook;
+        _canDrag = storageLook?.CanDrag ?? false;   // 默认不可拖
+        SyncCloseButton(storageLook);
         // 池化复用的视图可能曾被 Hide（不可见）后交回，重新挂载时要恢复到可见的初始状态。
         _hidden = false;
         Visible = true;
@@ -183,8 +191,8 @@ public sealed partial class InventoryView : Control
                 // 空手 + 点到背景/空格子（无物品可拾）→ 整仓随鼠标移动；否则交回手（拾起或放置）。
                 if (hand.HeldItem == null && !hand.IsRotateAnimating && !GetItemAtCell(mb.Position))
                 {
-                    StartDrag(mb.Position);   // mb.Position 已是视图本地坐标
-                    return;
+                    if (_canDrag) StartDrag(mb.Position);   // mb.Position 已是视图本地坐标
+                    return;                                 // 不可拖动的仓库：点背景/空格子什么都不做
                 }
                 hand.OnLeftPressed(this, mb.Position);   // Position 已是视图本地坐标
                 break;
@@ -210,6 +218,7 @@ public sealed partial class InventoryView : Control
     /// 手持放置物时调用无效（拖拽只在空手时成立，与 _GuiInput 分流一致，这里再做一次防御）。</summary>
     public void StartDrag(Vector2 viewLocalPos)
     {
+        if (!_canDrag) return;   // 仓库配置「能否拖动」= false：面板固定
         if (HeldItemController.Instance?.HeldItem != null) return;
         _dragActive = true;
         _dragGrabLocal = viewLocalPos;
@@ -235,6 +244,37 @@ public sealed partial class InventoryView : Control
         _dragActive = false;
         if (Position != _dragStartPos)
             Moved?.Invoke();
+    }
+
+    /// <summary>按仓库配置同步关闭按钮：有贴图就生成/更新，没有就移除（视图可能来自对象池复用）。
+    /// 关闭按钮叠在面板左上角 + <see cref="StorageTypeDef.CloseButtonPosition"/>，点击 = 暂时关闭本仓库
+    /// （有归属按钮走它的事件/位置记忆，没有则直接隐藏）。</summary>
+    private void SyncCloseButton(StorageTypeDef? storage)
+    {
+        if (_closeButton != null)
+        {
+            RemoveChild(_closeButton);
+            _closeButton.QueueFree();
+            _closeButton = null;
+        }
+        if (storage?.CloseButtonTexture == null) return;
+
+        var button = new TextureButton
+        {
+            Name = "CloseButton",
+            TextureNormal = storage.CloseButtonTexture,
+            StretchMode = TextureButton.StretchModeEnum.Scale,
+            Position = storage.CloseButtonPosition,
+            Size = storage.CloseButtonSize,
+            CustomMinimumSize = storage.CloseButtonSize,
+        };
+        button.Pressed += () =>
+        {
+            if (OwnerButton != null && GodotObject.IsInstanceValid(OwnerButton)) OwnerButton.Close();
+            else Hide();
+        };
+        AddChild(button);
+        _closeButton = button;
     }
 
     /// <summary>像素坐标（视图本地）→ 格子坐标（不裁剪，允许负数与越界值，由容器判定）。</summary>

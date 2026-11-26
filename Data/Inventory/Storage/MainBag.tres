@@ -9,6 +9,7 @@
 script = ExtResource("1_cfg")
 Id = 2001
 DisplayName = "鱼护"
+CanDrag = true
 CellSize = 84
 ValidPattern = PackedStringArray("xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx")
 CellTexture = ExtResource("2_b4wri")

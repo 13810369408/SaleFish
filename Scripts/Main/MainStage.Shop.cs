@@ -40,8 +40,9 @@ public sealed partial class MainStage
     /// <summary>鱼护在鱼店旁的位置（Marker2D，位置可拖）。</summary>
     [Export] public NodePath? FishKeepAtShopPath = new("FishKeepAtShop");
 
-    /// <summary>价格板（挂 PriceBoard 的 Sprite2D）：准备开店阶段点击 → 打开价格面板。</summary>
-    [Export] public NodePath? PriceBoardPath = new("PriceBoard");
+    /// <summary>鱼店唯一的仓库（挂 WarehouseButton 的节点，本身不显示/不可点——点击开关走鱼店）。
+    /// 打开它 = 同时打开价格板；关闭 = 同时关闭（见 <see cref="ToggleShopPanels"/>）。</summary>
+    [Export] public NodePath? ShopWarehousePath = new("ShopWarehouse");
 
     /// <summary>鱼店 UI（prefab：Scenes/ShopUi.tscn，挂在 UI/Hud 下）。</summary>
     [Export] public NodePath? ShopUiPath = new("UI/Hud/ShopUi");
@@ -56,7 +57,7 @@ public sealed partial class MainStage
     private Sprite2D? _fishKeepSprite;
     private Node2D? _shopSpawn;
     private Node2D? _fishKeepAtShop;
-    private PriceBoard? _priceBoard;
+    private WarehouseButton? _shopWarehouse;
     private ShopUi? _shopUi;
     private Vector2 _fishKeepHome;          // 鱼护在钓鱼区的原位（场景初始位置）
     private SellService.Result? _lastSell;  // 最近一次结算结果（详情/测试用）
@@ -71,17 +72,16 @@ public sealed partial class MainStage
         _fishKeepSprite = GetNodeOrNull<Sprite2D>(FishKeepPath);
         _shopSpawn = GetNodeOrNull<Node2D>(ShopSpawnPath);
         _fishKeepAtShop = GetNodeOrNull<Node2D>(FishKeepAtShopPath);
-        _priceBoard = GetNodeOrNull<PriceBoard>(PriceBoardPath);
+        _shopWarehouse = GetNodeOrNull<WarehouseButton>(ShopWarehousePath);
         _shopUi = GetNodeOrNull<ShopUi>(ShopUiPath);
 
         if (_fishKeepSprite != null) _fishKeepHome = _fishKeepSprite.GlobalPosition;
-        if (_priceBoard != null) _priceBoard.Clicked += OnPriceBoardClicked;
         if (_shopUi != null)
         {
             _shopUi.StartSellPressed += OnStartSellPressed;
             _shopUi.ConfirmAccepted += OnSellConfirmed;
             _shopUi.ResultClosed += OnSellResultClosed;
-            _shopUi.PriceBoardClosed += RefreshShopHud;
+            _shopUi.PriceBoardClosed += OnPriceBoardClosedByUser;
         }
         if (_fishShop == null) GD.PushWarning("[MainStage] 找不到 FishShop（鱼店）：靠近高亮不可用。");
         if (_fishKeepSprite == null) GD.PushWarning("[MainStage] 找不到 FishKeep（鱼护）：开店传送不可用。");
@@ -130,13 +130,32 @@ public sealed partial class MainStage
         _shopUi?.SetStartSellVisible(Phase == GamePhase.PrepareShop && !_shopUi.ModalOpen && !_shopUi.ResultOpen);
     }
 
-    // ---- 价格板 ----
+    // ---- 鱼店开关（点鱼店 = 仓库 + 价格板 一起开/关） ----
 
-    /// <summary>点击价格板 → 打开/刷新价格面板（按仓库里的鱼种生成行）。</summary>
-    private void OnPriceBoardClicked()
+    /// <summary>点击鱼店：仓库与价格板一起打开；已经打开着就一起关闭。只在准备开店阶段有效。</summary>
+    public void ToggleShopPanels()
     {
-        if (Phase != GamePhase.PrepareShop || _shopUi == null) return;
-        _shopUi.OpenPriceBoard(BuildPriceRows());
+        if (Phase != GamePhase.PrepareShop) return;
+        if (_shopWarehouse == null || !IsInstanceValid(_shopWarehouse))
+        {
+            GD.PushWarning("[MainStage] 鱼店还没接 ShopWarehouse（挂 WarehouseButton 的仓库节点）。");
+            return;
+        }
+        if (_shopWarehouse.IsOpen)
+        {
+            _shopWarehouse.Close();
+            _shopUi?.ClosePriceBoard();
+            return;
+        }
+        _shopWarehouse.Open();
+        _shopUi?.OpenPriceBoard(BuildPriceRows());
+    }
+
+    /// <summary>价格面板被玩家关掉（面板上的关闭按钮）→ 仓库也一起关（两者同开同关）。</summary>
+    private void OnPriceBoardClosedByUser()
+    {
+        if (_shopWarehouse is { IsOpen: true } && IsInstanceValid(_shopWarehouse)) _shopWarehouse.Close();
+        RefreshShopHud();
     }
 
     /// <summary>仓库内容变化时（拿起/放下/钓上等）如果价格板开着，就重建行（已填价格存在 SaveManager 里不会丢）。</summary>

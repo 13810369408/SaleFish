@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using SaleFish.Common;
 using SaleFish.Fishing;
 using SaleFish.Inventory;
 using SaleFish.Save;
@@ -28,6 +29,7 @@ public sealed partial class TestShop : Node
     public override void _Ready()
     {
         TestSellServiceRules();
+        TestStorageOptions();
         TestShopFlow();
         SaveService.Delete(_slot);
         SaveManager.ShopPrices.Clear();
@@ -100,7 +102,57 @@ public sealed partial class TestShop : Node
         Check("图鉴最高价数据齐全", x1.BestPrice.All(kv => kv.Value >= 0));
     }
 
-    // ---------- 2. 主关卡端到端 ----------
+    // ---------- 2. 仓库配置项（能否拖动 / 关闭按钮） ----------
+
+    private void TestStorageOptions()
+    {
+        Check("StorageTypeDef.CanDrag 默认 false（不可拖）", !new StorageTypeDef().CanDrag);
+        var warehouseDef = ResourceLoader.Load<StorageTypeDef>("res://Data/Inventory/Storage/Warehouse1.tres");
+        var keepDef = ResourceLoader.Load<StorageTypeDef>("res://Data/Inventory/Storage/MainBag.tres");
+        Check("鱼店仓库：CanDrag = false（面板固定）", warehouseDef != null && !warehouseDef.CanDrag);
+        Check("鱼护：CanDrag = true（保留原来的整仓拖动）", keepDef != null && keepDef.CanDrag);
+
+        // 关闭按钮：配了贴图才生成；点它 = 关闭该仓库；CanDrag=false 时拖不动
+        var tex = ResourceLoader.Load<Texture2D>("res://Assets/InventoryImage/Label.png");
+        var def = new StorageTypeDef
+        {
+            Id = 9999,
+            DisplayName = "关闭按钮测试仓",
+            CellSize = 40,
+            ValidPattern = ["xx", "xx"],
+            CanDrag = false,
+            CloseButtonTexture = tex,
+            CloseButtonPosition = new Vector2(8, 8),
+            CloseButtonSize = new Vector2(32, 32),
+        };
+        var host = new Control();
+        AddChild(host);
+        var view = InventoryView.CreateStorage(host, def, new Vector2(10, 20));
+        Check("配了关闭按钮贴图 → 生成关闭按钮",
+            view != null && view.GetNodeOrNull<TextureButton>("CloseButton") != null);
+        if (view != null)
+        {
+            var before = view.Position;
+            view.StartDrag(Vector2.Zero);
+            view.MoveDragTo(new Vector2(600, 600));
+            Check("CanDrag=false：整仓拖动无效", view.Position == before);
+            view.GetNodeOrNull<TextureButton>("CloseButton")?.EmitSignal(BaseButton.SignalName.Pressed);
+            Check("点关闭按钮 → 该仓库暂时关闭（隐藏）", !view.Visible);
+            view.Hide();   // 确保注销登记，避免影响后续用例
+        }
+        host.QueueFree();
+
+        var plain = new StorageTypeDef { Id = 9998, DisplayName = "无关闭按钮", CellSize = 40, ValidPattern = ["x"] };
+        var host2 = new Control();
+        AddChild(host2);
+        var view2 = InventoryView.CreateStorage(host2, plain, Vector2.Zero);
+        Check("没配关闭按钮贴图 → 不生成关闭按钮", view2 != null && view2.GetNodeOrNull("CloseButton") == null);
+        view2?.Hide();
+        host2.QueueFree();
+        Check("配置项测试后没有残留打开中的仓库", WarehouseRegistry.OpenCount == 0);
+    }
+
+    // ---------- 3. 主关卡端到端 ----------
 
     private void TestShopFlow()
     {
@@ -123,19 +175,33 @@ public sealed partial class TestShop : Node
         Check("点「退出钓鱼」→ 准备开店，按钮出现",
             _stage.Phase == Main.MainStage.GamePhase.PrepareShop && startButton.Visible);
 
-        // 找仓库1，放一条沙丁鱼进去（物品 → 鱼 注册表要认得）
+        // 找鱼店唯一的仓库（名字 = 仓库），点鱼店把它和价格板一起打开
         var sartineDef = ResourceLoader.Load<FishDef>("res://Data/Fishing/Fish/Sartine.tres");
         Check("沙丁鱼配置可加载（Id=1 / 物品定义可入库）", sartineDef != null && sartineDef.ItemDef != null);
         if (sartineDef?.ItemDef == null) return;
-        var warehouse = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "仓库1");
-        Check("场景里有「仓库1」", warehouse != null);
+        var warehouse = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "仓库");
+        Check("场景里有唯一的「仓库」", warehouse != null);
         if (warehouse == null) return;
-        warehouse.Open();
+
+        var shop = _stage.GetNodeOrNull<InteractZone>("FishShop");
+        Check("场景里有鱼店（点击开关仓库+价格板）", shop != null);
+        if (shop != null)
+        {
+            ClickWorld(shop.GlobalPosition);
+            Check("点鱼店 → 仓库打开", warehouse.IsOpen);
+            Check("点鱼店 → 价格板一起打开", shopUi.PriceBoardOpen);
+            ClickWorld(shop.GlobalPosition);
+            Check("再点鱼店 → 仓库关闭", !warehouse.IsOpen);
+            Check("再点鱼店 → 价格板一起关闭", !shopUi.PriceBoardOpen);
+        }
+
+        // 打开仓库放一条沙丁鱼进去（物品 → 鱼 注册表要认得）
+        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);
         var view = warehouse.View;
-        Check("仓库1 打开后有视图", view != null);
+        Check("仓库打开后有视图", view != null);
         if (view == null) return;
         var fishItem = sartineDef.ItemDef.ToItem();
-        Check("把沙丁鱼放进仓库1", view.Inventory.TryPlace(fishItem, Vector2I.Zero).Outcome == PlaceOutcome.Success);
+        Check("把沙丁鱼放进仓库", view.Inventory.TryPlace(fishItem, Vector2I.Zero).Outcome == PlaceOutcome.Success);
 
         // 未标价 → 点「开始卖鱼」弹只能关闭的警告，阶段不变
         startButton.EmitSignal(BaseButton.SignalName.Pressed);
@@ -145,22 +211,16 @@ public sealed partial class TestShop : Node
         Check("未标价：警告只有一个关闭按钮", warnClose != null);
         warnClose?.EmitSignal(BaseButton.SignalName.Pressed);
 
-        // 点价格板 → 打开价格面板（一行沙丁鱼）
-        var board = _stage.GetNodeOrNull<PriceBoard>("PriceBoard");
-        Check("场景里有价格板", board != null);
-        if (board != null)
-        {
-            ClickWorld(board.GlobalPosition);
-            Check("点价格板 → 价格面板打开", shopUi.PriceBoardOpen);
-            var rows = _stage.GetNodeOrNull<VBoxContainer>("UI/Hud/ShopUi/PricePanel/VBox/Scroll/Rows");
-            Check("价格面板：仓库里只有 1 种鱼 → 1 行", rows != null && rows.GetChildCount() == 1);
+        // 关掉再打开鱼店 → 价格面板按当前仓库里的鱼重建（1 行）
+        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);   // 关
+        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);   // 开
+        var rows = _stage.GetNodeOrNull<VBoxContainer>("UI/Hud/ShopUi/PricePanel/VBox/Scroll/Rows");
+        Check("价格面板：仓库里只有 1 种鱼 → 1 行", shopUi.PriceBoardOpen && rows != null && rows.GetChildCount() == 1);
 
-            // 填价（模拟输入框只收数字：直接写存档里的定价，等价于玩家输入）
-            SaveManager.ShopPrices[sartineDef.Id] = 40;
-            _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/PricePanel/VBox/CloseButton")
-                ?.EmitSignal(BaseButton.SignalName.Pressed);
-            Check("关闭价格面板", !shopUi.PriceBoardOpen);
-        }
+        // 填价（模拟输入框只收数字：直接写定价，等价于玩家输入），再关掉鱼店
+        SaveManager.ShopPrices[sartineDef.Id] = 40;
+        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);
+        Check("再点鱼店：仓库与价格板都关闭", !warehouse.IsOpen && !shopUi.PriceBoardOpen);
 
         // 鱼护里还有鱼 → 点「开始卖鱼」先弹是/否确认；点「否」不进入卖鱼
         var keep = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "鱼护");
