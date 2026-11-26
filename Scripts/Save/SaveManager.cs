@@ -24,6 +24,10 @@ public sealed partial class SaveManager : Node
     /// <summary>当前操作的槽名（SaveNow/LoadSlot 后写它）；空 = 尚未指定。</summary>
     public static string ActiveSlot { get; private set; } = "";
 
+    /// <summary>进入主关卡时玩家应从「自由移动」开局（新游戏 = true；读档/继续 = false）。
+    /// MainStage._Ready 读它决定初始阶段。只影响「进场那一刻」。</summary>
+    public static bool StartInFreeMove;
+
     /// <summary>读档暂存的仓库内容：主菜单里读档时场上还没有仓库按钮，要等主关卡 _Ready（按钮就位后）
     /// 经 <see cref="ApplyPendingWarehouses"/> 铺回场景；还原完即清空。</summary>
     private static List<WarehouseSave>? _pendingWarehouses;
@@ -72,6 +76,7 @@ public sealed partial class SaveManager : Node
         if (data.Held != null) ApplyHeld(data.Held);   // 手是 autoload，跨场景存活，现在就拿上
         _pendingWarehouses = data.Warehouses;
         ActiveSlot = slot;
+        StartInFreeMove = false;   // 读档/继续：进场从「准备钓鱼」开始
         WriteLastSlot(slot);
         GD.Print($"[Save] 已读取槽「{slot}」");
         return true;
@@ -85,6 +90,7 @@ public sealed partial class SaveManager : Node
         FishEncyclopediaLog.ClearAll();
         _pendingWarehouses = null;   // 全新仓库：主关卡按空仓起步
         HeldItemController.Instance?.DiscardHeld();
+        StartInFreeMove = true;      // 新游戏：进场让玩家处于自由移动（走去椅子坐下钓鱼）
         SaveNow(slot);
     }
 

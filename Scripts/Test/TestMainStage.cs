@@ -436,14 +436,17 @@ public sealed partial class TestMainStage : Node
     /// <summary>
     /// 自由移动（GamePhase.FreeMove）+ 钓鱼点（FishingSpot）交互：
     ///  ▪ 「退出钓鱼」按钮（Ready 才显示）→ 切 FreeMove；
-    ///  ▪ FreeMove 左键点钓鱼点 → 玩家以行走速度自动走向钓鱼点 X，到位切回 Ready；
-    ///  ▪ 玩家走进钓鱼点检测范围 → 高亮描边显示；离开 → 关闭。
+    ///  ▪ 玩家在检测范围「外」点椅子无效；走进范围内（高亮显示）后点椅子 → 走向钓鱼点 X → Ready；
+    ///  ▪ 玩家在范围内 → 高亮描边开；离开 → 关；
+    ///  ▪ 「坐下钓鱼」悬浮提示只在「玩家在范围内 + 鼠标悬停在椅子上」时显示。
     /// </summary>
     private void TestFreeMoveAndFishSpot()
     {
         var player = _stage.GetNodeOrNull<CharacterBody2D>("Player");
         var spot = _stage.GetNodeOrNull<FishingSpot>("FishingSpot");
-        Check("自由移动前置：Player(CharacterBody2D) 与 FishingSpot 存在", player != null && spot != null);
+        var tip = _stage.FindChild("SitFishLabel", recursive: true, owned: false) as Label;
+        Check("自由移动前置：Player(CharacterBody2D) / FishingSpot / 悬浮提示 均存在",
+            player != null && spot != null && tip != null);
         if (player == null || spot == null) return;
 
         Check("FreeMove 前置：处于 Ready", _stage.Phase == Main.MainStage.GamePhase.Ready);
@@ -451,11 +454,25 @@ public sealed partial class TestMainStage : Node
         Check("点「退出钓鱼」：进入自由移动（FreeMove）", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
         Check("FreeMove：退出钓鱼按钮隐藏", !_exitFishButton.Visible);
 
-        // 把玩家挪到检测范围外，FreeMove 左键点钓鱼点 → 自动走向目标 X
+        var highlight = spot.GetNodeOrNull<Line2D>("Highlight");
+
+        // ---- 玩家在检测范围「外」：点椅子不触发，悬停也不显示提示 ----
         player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 400f, player.GlobalPosition.Y);
         ClickSpot();
-        Check("FreeMove 点钓鱼点：开始自动走向", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
+        Check("范围外点椅子：不触发（仍 FreeMove）", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
+        _stage.UpdateFishSpotUi(spot.GlobalPosition);   // 鼠标落在椅子上，但玩家在范围外
+        Check("范围外：高亮关闭", highlight != null && !highlight.Visible);
+        if (tip != null) Check("范围外悬停椅子：不显示「坐下钓鱼」", !tip.Visible);
 
+        // ---- 玩家走进检测范围（高亮显示）----
+        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 40f, player.GlobalPosition.Y);   // 范围内、略偏
+        _stage.UpdateFishSpotUi(spot.GlobalPosition);
+        Check("范围内：高亮描边显示", highlight is { Visible: true });
+        if (tip != null) Check("范围内悬停椅子：显示「坐下钓鱼」", tip.Visible);
+
+        // ---- 范围内点椅子 → 走向钓鱼点 X → Ready ----
+        ClickSpot();
+        Check("范围内点椅子：开始走向", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
         const double dt = 1.0 / 60.0;
         for (var i = 0; i < 3000; i++)
         {
@@ -465,15 +482,9 @@ public sealed partial class TestMainStage : Node
         Check("走向后：玩家停在钓鱼点 X", Mathf.Abs(player.GlobalPosition.X - spot.GlobalPosition.X) < 4f);
         Check("走向后：阶段切回「准备钓鱼」(Ready)", _stage.Phase == Main.MainStage.GamePhase.Ready);
 
-        // 高亮描边：FreeMove 下玩家在检测范围 → 开；离开 → 关
-        _stage.ExitToFreeMove();
-        player.GlobalPosition = new Vector2(spot.GlobalPosition.X, player.GlobalPosition.Y);
+        // 非 FreeMove 阶段：高亮关闭
         _stage.UpdateFishSpotUi(spot.GlobalPosition);
-        var highlight = spot.GetNodeOrNull<Line2D>("Highlight");
-        Check("玩家在钓鱼点检测范围内：高亮描边显示", highlight is { Visible: true });
-        player.GlobalPosition = new Vector2(spot.GlobalPosition.X + 400f, player.GlobalPosition.Y);
-        _stage.UpdateFishSpotUi(spot.GlobalPosition);
-        Check("玩家离开检测范围：高亮关闭", highlight != null && !highlight.Visible);
+        Check("非 FreeMove：高亮关闭", highlight != null && !highlight.Visible);
     }
 
     /// <summary>合成一次落在世界坐标（画布变换后即屏幕坐标）的空手左键点击，直接派给主关卡 _UnhandledInput

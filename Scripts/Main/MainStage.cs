@@ -106,6 +106,10 @@ public sealed partial class MainStage : Node2D
     [Export] public float WalkSpeed = 220f;
     /// <summary>玩家下落重力（px/s²）：CharacterBody2D 落回地面的简单物理。</summary>
     [Export] public float WalkGravity = 1200f;
+
+    /// <summary>「退出钓鱼」按钮相对钓鱼点「屏幕位置」的偏移（Hud 像素，按钮左上角）。
+    /// 想挪按钮位置就改这里（默认放在椅子上方）；按钮仅在 Ready 阶段显示、跟随钓鱼点。</summary>
+    [Export] public Vector2 ExitFishingButtonOffset = new(0f, -170f);
     private CharacterBody2D? _player;        // 玩家物理体（场景 Player）
     private Sprite2D? _playerSprite;         // 玩家视觉（Player/Sprite，蓄力条锚点用）
     private FishingSpot? _fishSpot;          // 钓鱼点（场景 FishingSpot）
@@ -230,6 +234,14 @@ public sealed partial class MainStage : Node2D
         HeldItemController.Instance.HeldChanged += OnHeldChanged;
         Localizer.LanguageChanged += OnLanguageChanged;
         OnHeldChanged(null);
+
+        // 新游戏开局 = 自由移动（SaveManager.StartInFreeMove 由 NewGame 置位）；读档/继续则从「准备钓鱼」开始。
+        if (SaveManager.StartInFreeMove)
+        {
+            SetPhase(GamePhase.FreeMove);
+            _status.Text = Localizer.T("status.freemove");
+        }
+        RefreshButtons();
     }
 
     public override void _ExitTree()
@@ -266,6 +278,7 @@ public sealed partial class MainStage : Node2D
         UpdateFishingLine(delta);
         StepPlayerMovement(delta);   // 自由移动：A/D 行走 / 自动走去坐下；其余阶段静止落地
         UpdateFishSpotUi();          // 钓鱼点高亮描边 + 「坐下钓鱼」悬浮提示跟随鼠标
+        UpdateExitFishButtonPosition();   // 「退出钓鱼」按钮钉在钓鱼点附近（仅 Ready 显示）
         // 自由移动时镜头柔和跟随玩家 X（避免走动着出屏；走回钓鱼点后镜头就停在钓鱼点附近）。
         if (Phase == GamePhase.FreeMove && _player != null && _camera != null)
             _camera.Position = _camera.Position.Lerp(
@@ -557,7 +570,7 @@ public sealed partial class MainStage : Node2D
             MouseFilter = Control.MouseFilterEnum.Ignore,   // 纯提示，不吃点击
         };
         _sitFishLabel.AddThemeColorOverride("font_color", new Color(1f, 0.97f, 0.85f));
-        _sitFishLabel.AddThemeFontSizeOverride("font_size", 26);
+        _sitFishLabel.AddThemeFontSizeOverride("font_size", 20);
         ui.AddChild(_sitFishLabel);
 
         _helpLabel = new Label
@@ -671,10 +684,13 @@ public sealed partial class MainStage : Node2D
         // 手持放置物时左键是「放/拾」语义（落在仓库格上已被视图消费，这里兜底世界区）：不抛竿。
         if (HeldItemController.Instance?.HeldItem != null) return;
 
-        // 自由移动（FreeMove）：不抛竿/不收线。左键点到钓鱼点检测范围 = 走过去坐下；其它点击不吃。
+        // 自由移动（FreeMove）：不抛竿/不收线。只有「玩家已在钓鱼点检测范围内（高亮显示）」时，
+        // 左键点椅子才触发「坐下钓鱼」；其它点击不吃。
         if (Phase == GamePhase.FreeMove)
         {
-            if (_fishSpot != null && _fishSpot.IsPointInside(canvasPoint))
+            if (_fishSpot != null && _player != null
+                && _fishSpot.IsPointInside(_player.GlobalPosition)   // 玩家必须先走到椅子旁（highlight 显示）
+                && _fishSpot.IsPointInside(canvasPoint))             // 且点的是椅子/检测范围
                 StartWalkingToSpot();
             return;
         }
@@ -798,24 +814,29 @@ public sealed partial class MainStage : Node2D
 
     /// <summary>钓鱼点 UI（每帧调用，仅 FreeMove 有意义）：
     ///  ▪ 玩家在检测范围内 → 钓鱼点高亮描边（SetHighlight）；
-    ///  ▪ 鼠标悬停在检测范围内 → 「坐下钓鱼」悬浮提示显示并跟随鼠标（mouseWorld 可注入供测试）。</summary>
+    ///  ▪ 且此时鼠标悬停在钓鱼点上 → 显示「坐下钓鱼」悬浮提示，左上角贴在鼠标处（mouseWorld 可注入供测试）。
+    /// 未进入范围时不高亮、不显示提示。</summary>
     public void UpdateFishSpotUi(Vector2? mouseWorld = null)
     {
         var spot = _fishSpot;
         if (spot == null) return;
 
-        var hovering = spot.IsPointInside(mouseWorld ?? GetGlobalMouseWorld());
-        if (Phase == GamePhase.FreeMove)
-        {
-            spot.SetHighlight(_player != null && spot.IsPointInside(_player.GlobalPosition));
-            _sitFishLabel.Visible = hovering;
-            if (hovering && _hud != null) FollowMouseInHud(mouseWorld ?? GetGlobalMouseWorld());
-        }
-        else
+        if (Phase != GamePhase.FreeMove || _player == null)
         {
             spot.SetHighlight(false);
             _sitFishLabel.Visible = false;
+            return;
         }
+
+        // 玩家是否已在钓鱼点检测范围内（= 高亮显示条件）。
+        var playerInRange = spot.IsPointInside(_player.GlobalPosition);
+        spot.SetHighlight(playerInRange);
+
+        // 只有「玩家在范围内 + 鼠标悬停在钓鱼点上」才显示「坐下钓鱼」；悬浮框左上角贴鼠标。
+        var mouse = mouseWorld ?? GetGlobalMouseWorld();
+        var hovering = playerInRange && spot.IsPointInside(mouse);
+        _sitFishLabel.Visible = hovering;
+        if (hovering) PlaceTooltipAtMouse(mouse);
     }
 
     /// <summary>点击钓鱼点：让小玩家以行走速度自动走到钓鱼点 X，到位后切 Ready（抛竿可用）。</summary>
@@ -827,13 +848,23 @@ public sealed partial class MainStage : Node2D
         _status.Text = Localizer.T("status.sit_fish_goto");
     }
 
-    /// <summary>把世界坐标换算成 Hud 本地坐标并让悬浮提示跟到鼠标旁。</summary>
-    private void FollowMouseInHud(Vector2 mouseWorld)
+    /// <summary>「退出钓鱼」按钮跟随钓鱼点：世界坐标 → Hud 本地，再加导出偏移（按钮左上角定位）。
+    /// 仅按钮可见（Ready 阶段）时更新。</summary>
+    public void UpdateExitFishButtonPosition()
+    {
+        if (_exitFishButton == null || !_exitFishButton.Visible) return;
+        if (_fishSpot == null || _hud == null) return;
+        var screen = GetViewport().GetCanvasTransform() * _fishSpot.GlobalPosition;
+        var local = _hud.GetGlobalTransformWithCanvas().AffineInverse() * screen;
+        _exitFishButton.Position = local + ExitFishingButtonOffset;
+    }
+
+    /// <summary>世界坐标 → Hud 本地坐标，悬浮提示左上角贴在该点（= 鼠标处）。</summary>
+    private void PlaceTooltipAtMouse(Vector2 mouseWorld)
     {
         if (_hud == null) return;
         var screen = GetViewport().GetCanvasTransform() * mouseWorld;
-        var local = _hud.GetGlobalTransformWithCanvas().AffineInverse() * screen;
-        _sitFishLabel.Position = local + new Vector2(16, 16);
+        _sitFishLabel.Position = _hud.GetGlobalTransformWithCanvas().AffineInverse() * screen;
     }
 
     /// <summary>当前全局鼠标世界坐标（画布坐标；与 HeldItemController.GlobalMouse 同做法）。</summary>
