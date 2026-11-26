@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://bawkrb1t22k3o"]
+
+[ext_resource type="Texture2D" uid="uid://djx0dwlxix67x" path="res://Assets/Fish/MolaMola/MolaMola.png" id="1_rkubo"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xu860"]
+atlas = ExtResource("1_rkubo")
+region = Rect2(0, 0, 47, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ao7xw"]
+atlas = ExtResource("1_rkubo")
+region = Rect2(47, 0, 47, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ha3u3"]
+atlas = ExtResource("1_rkubo")
+region = Rect2(94, 0, 47, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_la3bd"]
+atlas = ExtResource("1_rkubo")
+region = Rect2(141, 0, 47, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xu860")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ao7xw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ha3u3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_la3bd")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]

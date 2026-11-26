@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://5j9er38i7168"]
+
+[ext_resource type="PackedScene" uid="uid://bx5dlw60bya8n" path="res://Scenes/FishStruggleDemo.tscn" id="1_demo"]
+[ext_resource type="Resource" uid="uid://qractg8r0h8j" path="res://Data/Fishing/Fish/Sartine.tres" id="2_fishdef"]
+[ext_resource type="Script" path="res://Scripts/Test/TestFishStruggleDemo.cs" id="3_driver"]
+
+[node name="VerifyDriver" type="Node" unique_id=1000000001]
+script = ExtResource("3_driver")
+DemoPath = NodePath("Demo")
+
+[node name="Demo" parent="." instance=ExtResource("1_demo")]
+FishDefConfig = ExtResource("2_fishdef")

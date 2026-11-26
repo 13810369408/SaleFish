@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PlacementItemTypeDef" format=3 uid="uid://drtqrji7acn04"]
+
+[ext_resource type="Texture2D" uid="uid://co2hhf2d7c1lj" path="res://Assets/Fish/Sardine/SartineItemTexture.tres" id="1_7oxyg"]
+[ext_resource type="Script" uid="uid://exc2wj3vhwxb" path="res://Scripts/Inventory/PlacementItemTypeDef.cs" id="1_r5cym"]
+
+[resource]
+script = ExtResource("1_r5cym")
+DisplayName = "沙丁鱼"
+ShapePattern = PackedStringArray("xx")
+Texture = ExtResource("1_7oxyg")
+DisplaySize = Vector2(2, 1)

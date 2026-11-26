@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PlacementItemTypeDef" format=3 uid="uid://bul4wsogeoufk"]
+
+[ext_resource type="Texture2D" uid="uid://cow7ck86ameyn" path="res://Assets/Fish/MolaMola/MolaMolaItemTexture.tres" id="1_hxctv"]
+[ext_resource type="Script" uid="uid://exc2wj3vhwxb" path="res://Scripts/Inventory/PlacementItemTypeDef.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+DisplayName = "翻车鱼"
+ShapePattern = PackedStringArray("..x", "xxxx", "xxxx", "xxxx", "..x")
+Texture = ExtResource("1_hxctv")
+DisplaySize = Vector2(4, 5)

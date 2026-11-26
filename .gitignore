@@ -1,0 +1,13 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# 误建的嵌套空仓库（无项目内容，只有 .git）——不入外层仓库
+# 若无用可整体删除 SaleFish/ 目录（这里只是不去追踪它）
+/SaleFish/
+
+# .NET (Godot C#) —— 构建产物在 .godot/ 下已覆盖；这里是本地 /bin /obj 与编辑器残留兜底
+/bin/
+/obj/
+*.user
+*.tmp

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Inventory/StorageTypeDef.cs" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+Id = 2002
+DisplayName = "异形储物箱（配置示例）"
+CellSize = 64
+ValidPattern = Array[String](["###.###", "#######", "#####.#", "#######"])

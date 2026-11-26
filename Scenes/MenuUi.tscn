@@ -1,0 +1,956 @@
+[gd_scene format=3 uid="uid://dr0jxiu165bla"]
+
+[ext_resource type="Script" uid="uid://dw8nh42uv06rq" path="res://Scripts/Main/MenuUi.cs" id="1_menu"]
+[ext_resource type="Resource" uid="uid://qractg8r0h8j" path="res://Data/Fishing/Fish/Sartine.tres" id="2_fish"]
+[ext_resource type="Script" uid="uid://d0wbuf6h68teh" path="res://Scripts/Localization/LocalizedText.cs" id="3_loc"]
+[ext_resource type="Texture2D" uid="uid://byqtbcnfudeyw" path="res://Assets/GUI/salmon.png" id="4_salmon"]
+[ext_resource type="Texture2D" uid="uid://ii76g6c8se8l" path="res://Assets/GUI/two-coins.png" id="5_coins"]
+[ext_resource type="Texture2D" uid="uid://cvbamoycuvfl0" path="res://Assets/GUI/files.png" id="6_7ln7y"]
+[ext_resource type="Texture2D" uid="uid://bpl1mmvleviux" path="res://Assets/GUI/diagram.png" id="7_seknk"]
+[ext_resource type="Texture2D" uid="uid://b80bqbvdiquu4" path="res://Assets/GUI/settings-knobs.png" id="8_2oxgs"]
+[ext_resource type="Texture2D" uid="uid://4r0fp6p0ckno" path="res://Assets/GUI/fishing-hook.png" id="9_n20v2"]
+[ext_resource type="Texture2D" uid="uid://5dcp6hfvsc5q" path="res://Assets/GUI/fishing-lure.png" id="10_10shu"]
+[ext_resource type="Resource" uid="uid://ba1wp28qs28rc" path="res://Data/Fishing/Fish/SeaBass.tres" id="11_seabass"]
+[ext_resource type="Resource" uid="uid://bk3scar8ap1w4" path="res://Data/Fishing/Fish/YellowBoxfish.tres" id="12_boxfish"]
+[ext_resource type="Resource" uid="uid://caombhfdo73f7" path="res://Data/Fishing/Fish/MolaMola.tres" id="13_sunfish"]
+[ext_resource type="PackedScene" uid="uid://dlh4ch3fgmst1" path="res://Scenes/SettingsUi.tscn" id="14_setui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Backdrop"]
+bg_color = Color(0.6549, 0.5294, 0.3725, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5569, 0.4431, 0.302, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Page"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.5137, 0.3882, 0.2314, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.42, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_InfoRow"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.3529, 0.2667, 0.1529, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2784, 0.2118, 0.1216, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Badge"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.9137, 0.8784, 0.7882, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.3804, 0.2902, 0.1725, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+
+[node name="MenuUi" type="Control" unique_id=1843230801]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MenuButton" type="Button" parent="." unique_id=1113211461]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -170.0
+offset_top = 44.0
+offset_right = -10.0
+offset_bottom = 86.0
+grow_horizontal = 0
+text = "菜单"
+
+[node name="LocalizedText" type="Node" parent="MenuButton" unique_id=1846160333]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.button.menu"
+
+[node name="MenuPanel" type="Control" parent="." unique_id=1636039699]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_menu")
+EncyclopediaFish = [ExtResource("2_fish"), ExtResource("11_seabass"), ExtResource("12_boxfish"), ExtResource("13_sunfish")]
+FishScale = 6.0
+
+[node name="Dim" type="ColorRect" parent="MenuPanel" unique_id=5151539]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="Center" type="CenterContainer" parent="MenuPanel" unique_id=1271437200]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -9.0
+offset_top = -11.0
+offset_right = -9.0
+offset_bottom = -11.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Book" type="Control" parent="MenuPanel/Center" unique_id=1614691885]
+custom_minimum_size = Vector2(1200, 800)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MenuButtons" type="VBoxContainer" parent="MenuPanel/Center/Book" unique_id=1120825913]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -400.0
+offset_right = 262.0
+offset_bottom = -156.29
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="ContinueButton" type="Button" parent="MenuPanel/Center/Book/MenuButtons" unique_id=261202879]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "继续游戏"
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/Center/Book/MenuButtons/ContinueButton" unique_id=2145909030]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.button.resume"
+
+[node name="SettingsButton" type="Button" parent="MenuPanel/Center/Book/MenuButtons" unique_id=558067902]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "设置"
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/Center/Book/MenuButtons/SettingsButton" unique_id=305022613]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.button.settings"
+
+[node name="QuitButton" type="Button" parent="MenuPanel/Center/Book/MenuButtons" unique_id=742587659]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "保存并返回主界面"
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/Center/Book/MenuButtons/QuitButton" unique_id=1283623594]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.button.saveandquit"
+
+[node name="BookBackdrop" type="Panel" parent="MenuPanel/Center/Book" unique_id=276174859]
+layout_mode = 0
+offset_right = 1200.0
+offset_bottom = 800.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Backdrop")
+
+[node name="LeftPage" type="Panel" parent="MenuPanel/Center/Book" unique_id=941503271]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 580.0
+offset_bottom = 780.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Page")
+
+[node name="NameRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=1589912872]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 524.0
+offset_bottom = 116.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="NameText" type="Label" parent="MenuPanel/Center/Book/LeftPage/NameRow" unique_id=76004075]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 492.0
+offset_bottom = 84.0
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FishBadge" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=1509048162]
+clip_contents = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 132.0
+offset_right = 524.0
+offset_bottom = 364.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
+
+[node name="FishImage" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/FishBadge" unique_id=1687689125]
+layout_mode = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SizeRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=1853701894]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 380.0
+offset_right = 262.0
+offset_bottom = 440.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/SizeRow" unique_id=1207998785]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="SizeIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/SizeRow/HBoxContainer" unique_id=582048432]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_salmon")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SizeText" type="Label" parent="MenuPanel/Center/Book/LeftPage/SizeRow/HBoxContainer" unique_id=1162001410]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+text = "小型"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PriceRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=131760124]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 380.0
+offset_right = 524.0
+offset_bottom = 440.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/PriceRow" unique_id=1465044686]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="PriceIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/PriceRow/HBoxContainer" unique_id=62821150]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_coins")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="PriceText" type="Label" parent="MenuPanel/Center/Book/LeftPage/PriceRow/HBoxContainer" unique_id=14894542]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TagRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=404704165]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 456.0
+offset_right = 262.0
+offset_bottom = 592.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/TagRow" unique_id=1715203639]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TagIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/TagRow/HBoxContainer" unique_id=1168889873]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_7ln7y")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="TagText" type="Label" parent="MenuPanel/Center/Book/LeftPage/TagRow/HBoxContainer" unique_id=513946238]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AreaRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=2034083212]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 456.0
+offset_right = 524.0
+offset_bottom = 516.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/AreaRow" unique_id=1182939231]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="AreaIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/AreaRow/HBoxContainer" unique_id=356629702]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_seknk")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="AreaText" type="Label" parent="MenuPanel/Center/Book/LeftPage/AreaRow/HBoxContainer" unique_id=2111771085]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DeapthRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=1048074439]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 532.0
+offset_right = 524.0
+offset_bottom = 592.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/DeapthRow" unique_id=1154084891]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="DeapthIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/DeapthRow/HBoxContainer" unique_id=1178826593]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_2oxgs")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="DeapthText" type="Label" parent="MenuPanel/Center/Book/LeftPage/DeapthRow/HBoxContainer" unique_id=1079883382]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HookRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=1939761975]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 608.0
+offset_right = 262.0
+offset_bottom = 744.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/HookRow" unique_id=686155240]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="HookIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/HookRow/HBoxContainer" unique_id=726214554]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("9_n20v2")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HookText" type="Label" parent="MenuPanel/Center/Book/LeftPage/HookRow/HBoxContainer" unique_id=288523433]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LureRow" type="Panel" parent="MenuPanel/Center/Book/LeftPage" unique_id=1777832539]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 608.0
+offset_right = 524.0
+offset_bottom = 744.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/LeftPage/LureRow" unique_id=1059016498]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="LureIcon" type="TextureRect" parent="MenuPanel/Center/Book/LeftPage/LureRow/HBoxContainer" unique_id=265244498]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("10_10shu")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="LureText" type="Label" parent="MenuPanel/Center/Book/LeftPage/LureRow/HBoxContainer" unique_id=77326610]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightPage" type="Panel" parent="MenuPanel/Center/Book" unique_id=948832168]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 20.0
+offset_right = 1160.0
+offset_bottom = 780.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Page")
+
+[node name="NameRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=835304702]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 524.0
+offset_bottom = 116.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="NameText" type="Label" parent="MenuPanel/Center/Book/RightPage/NameRow" unique_id=169797814]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 492.0
+offset_bottom = 84.0
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FishBadge" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=1765486285]
+clip_contents = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 132.0
+offset_right = 524.0
+offset_bottom = 364.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Badge")
+
+[node name="FishImage" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/FishBadge" unique_id=1783144735]
+layout_mode = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SizeRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=2145662734]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 380.0
+offset_right = 262.0
+offset_bottom = 440.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/SizeRow" unique_id=1034213452]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="SizeIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/SizeRow/HBoxContainer" unique_id=2076463882]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_salmon")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SizeText" type="Label" parent="MenuPanel/Center/Book/RightPage/SizeRow/HBoxContainer" unique_id=767973766]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+text = "小型"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PriceRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=1976877360]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 380.0
+offset_right = 524.0
+offset_bottom = 440.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/PriceRow" unique_id=390869477]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="PriceIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/PriceRow/HBoxContainer" unique_id=1168578780]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_coins")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="PriceText" type="Label" parent="MenuPanel/Center/Book/RightPage/PriceRow/HBoxContainer" unique_id=125464620]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TagRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=1008668197]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 456.0
+offset_right = 262.0
+offset_bottom = 592.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/TagRow" unique_id=442995488]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TagIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/TagRow/HBoxContainer" unique_id=1827651440]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_7ln7y")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="TagText" type="Label" parent="MenuPanel/Center/Book/RightPage/TagRow/HBoxContainer" unique_id=1405854330]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AreaRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=1784871009]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 456.0
+offset_right = 524.0
+offset_bottom = 516.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/AreaRow" unique_id=2052832666]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="AreaIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/AreaRow/HBoxContainer" unique_id=492076584]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_seknk")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="AreaText" type="Label" parent="MenuPanel/Center/Book/RightPage/AreaRow/HBoxContainer" unique_id=634950425]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DeapthRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=878080955]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 532.0
+offset_right = 524.0
+offset_bottom = 592.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/DeapthRow" unique_id=1687175580]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="DeapthIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/DeapthRow/HBoxContainer" unique_id=94448085]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_2oxgs")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="DeapthText" type="Label" parent="MenuPanel/Center/Book/RightPage/DeapthRow/HBoxContainer" unique_id=1200948339]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HookRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=376466210]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 608.0
+offset_right = 262.0
+offset_bottom = 744.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/HookRow" unique_id=1819605694]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="HookIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/HookRow/HBoxContainer" unique_id=1005914035]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("9_n20v2")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HookText" type="Label" parent="MenuPanel/Center/Book/RightPage/HookRow/HBoxContainer" unique_id=1969800515]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LureRow" type="Panel" parent="MenuPanel/Center/Book/RightPage" unique_id=845276224]
+layout_mode = 0
+offset_left = 278.0
+offset_top = 608.0
+offset_right = 524.0
+offset_bottom = 744.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_InfoRow")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuPanel/Center/Book/RightPage/LureRow" unique_id=1560168026]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="LureIcon" type="TextureRect" parent="MenuPanel/Center/Book/RightPage/LureRow/HBoxContainer" unique_id=1999942280]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("10_10shu")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="LureText" type="Label" parent="MenuPanel/Center/Book/RightPage/LureRow/HBoxContainer" unique_id=1235593978]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941, 0.906, 0.824, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PrevButton" type="Button" parent="MenuPanel/Center/Book" unique_id=1002082714]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 112.0
+offset_bottom = 44.0
+text = "◀ 上一页"
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/Center/Book/PrevButton" unique_id=1515416662]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.prev"
+
+[node name="NextButton" type="Button" parent="MenuPanel/Center/Book" unique_id=2035229712]
+layout_mode = 0
+offset_left = 1084.0
+offset_top = 10.0
+offset_right = 1184.0
+offset_bottom = 44.0
+text = "下一页 ▶"
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/Center/Book/NextButton" unique_id=842603473]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.next"
+
+[node name="PageLabel" type="Label" parent="MenuPanel/Center/Book" unique_id=1796879468]
+layout_mode = 0
+offset_left = 460.0
+offset_top = 764.0
+offset_right = 740.0
+offset_bottom = 796.0
+horizontal_alignment = 1
+
+[node name="SettingsPanel" type="Control" parent="MenuPanel" unique_id=1208590025]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="MenuPanel/SettingsPanel" unique_id=2144338994]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="SettingsCenter" type="CenterContainer" parent="MenuPanel/SettingsPanel" unique_id=829136624]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsBox" type="Panel" parent="MenuPanel/SettingsPanel/SettingsCenter" unique_id=1443207118]
+custom_minimum_size = Vector2(480, 340)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Page")
+
+[node name="VBox" type="VBoxContainer" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox" unique_id=1128024965]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 22.0
+offset_right = -22.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="SettingsTitle" type="Label" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox" unique_id=350477008]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.91, 0.82, 1)
+theme_override_font_sizes/font_size = 30
+text = "设置"
+horizontal_alignment = 1
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox/SettingsTitle" unique_id=1374876921]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.button.settings"
+
+[node name="SettingsUi" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox" unique_id=466796271 instance=ExtResource("14_setui")]
+
+[node name="Spacer" type="Control" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox" unique_id=2052222746]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseButton" type="Button" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox" unique_id=1470217330]
+custom_minimum_size = Vector2(180, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "关闭"
+
+[node name="LocalizedText" type="Node" parent="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox/CloseButton" unique_id=434977144]
+script = ExtResource("3_loc")
+LocalizationKey = "menu.slot.close"
+
+[connection signal="pressed" from="MenuButton" to="MenuPanel" method="ToggleMenu"]
+[connection signal="pressed" from="MenuPanel/Center/Book/MenuButtons/ContinueButton" to="MenuPanel" method="CloseMenu"]
+[connection signal="pressed" from="MenuPanel/Center/Book/MenuButtons/SettingsButton" to="MenuPanel" method="OpenSettings"]
+[connection signal="pressed" from="MenuPanel/Center/Book/MenuButtons/QuitButton" to="MenuPanel" method="SaveAndExit"]
+[connection signal="pressed" from="MenuPanel/Center/Book/PrevButton" to="MenuPanel" method="PrevPage"]
+[connection signal="pressed" from="MenuPanel/Center/Book/NextButton" to="MenuPanel" method="NextPage"]
+[connection signal="pressed" from="MenuPanel/SettingsPanel/SettingsCenter/SettingsBox/VBox/CloseButton" to="MenuPanel" method="CloseSettings"]

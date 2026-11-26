@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://cm30d10biqnwa"]
+
+[ext_resource type="Script" uid="uid://dr2xdvxnx6yrp" path="res://Scripts/Fx/RingBurstEffect.cs" id="1_root"]
+[ext_resource type="Texture2D" uid="uid://bgs6vkcxc4j5n" path="res://Assets/FxTexture/SmallCircle.png" id="2_y6msl"]
+[ext_resource type="Texture2D" uid="uid://qr522lcqqecn" path="res://Assets/FxTexture/SmallBubble.png" id="3_nm7go"]
+
+[sub_resource type="Gradient" id="Gradient_expand"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_expand"]
+gradient = SubResource("Gradient_expand")
+
+[sub_resource type="Curve" id="Curve_gkxrc"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1e-05, 0.45599997), 0.0, 0.0, 0, 0, Vector2(0.3611111, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_lcuor"]
+curve = SubResource("Curve_gkxrc")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_expand"]
+particle_flag_disable_z = true
+gravity = Vector3(0, 0, 0)
+scale_min = 6.0
+scale_max = 6.0
+scale_curve = SubResource("CurveTexture_lcuor")
+color_ramp = SubResource("GradientTexture1D_expand")
+
+[sub_resource type="Gradient" id="Gradient_burst"]
+offsets = PackedFloat32Array(0, 0.3090278, 0.46979865, 0.7181208, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_burst"]
+gradient = SubResource("Gradient_burst")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_burst"]
+particle_flag_disable_z = true
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 240.0
+initial_velocity_max = 330.0
+gravity = Vector3(0, 0, 0)
+damping_min = 420.0
+damping_max = 420.0
+scale_min = 6.0
+scale_max = 6.0
+color_ramp = SubResource("GradientTexture1D_burst")
+
+[node name="RingBurstEffect" type="Node2D" unique_id=1499931575]
+script = ExtResource("1_root")
+RingDelay = 0.1
+AutoPlay = true
+
+[node name="ExpandingRing" type="GPUParticles2D" parent="." unique_id=1863343798]
+emitting = false
+amount = 1
+texture = ExtResource("2_y6msl")
+lifetime = 0.55
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_expand")
+
+[node name="RadialBurst" type="GPUParticles2D" parent="." unique_id=1693829655]
+emitting = false
+amount = 26
+texture = ExtResource("3_nm7go")
+lifetime = 0.65
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_burst")

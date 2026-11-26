@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" format=3 uid="uid://cow7ck86ameyn"]
+
+[ext_resource type="Texture2D" uid="uid://djx0dwlxix67x" path="res://Assets/Fish/MolaMola/MolaMola.png" id="1_dowsb"]
+
+[resource]
+atlas = ExtResource("1_dowsb")
+region = Rect2(0, 0, 47, 0)

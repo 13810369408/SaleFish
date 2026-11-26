@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://6ldutpkyep5p"]
+
+[ext_resource type="Script" uid="uid://bhme0nsw2o10v" path="res://Scripts/Fishing/Fish.cs" id="1_fish"]
+[ext_resource type="SpriteFrames" uid="uid://5nxcl210qc2q" path="res://Assets/Fish/Sardine/SardineAnim.tres" id="2_irtj1"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fish"]
+resource_local_to_scene = true
+radius = 8.0
+height = 32.0
+
+[node name="Fish" type="Area2D" unique_id=677946617]
+script = ExtResource("1_fish")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=115969299]
+sprite_frames = ExtResource("2_irtj1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=208032074]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_fish")

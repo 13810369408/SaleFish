@@ -1,0 +1,8 @@
+[gd_resource type="Resource" format=3 uid="uid://dkm7f6oj7upol"]
+
+[ext_resource type="Script" path="res://Scripts/Localization/LocalizationTable.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+LanguageCode = "en"
+DisplayName = "English"

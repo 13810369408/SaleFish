@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cjf0ueu7d0fb5"]
+
+[ext_resource type="Texture2D" uid="uid://dohgbng8dma03" path="res://Assets/Fish/SeaBass/SeaBass.png" id="1_c86f1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i6cij"]
+atlas = ExtResource("1_c86f1")
+region = Rect2(0, 0, 36, 21)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_it3t8"]
+atlas = ExtResource("1_c86f1")
+region = Rect2(36, 0, 36, 21)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5l4vd"]
+atlas = ExtResource("1_c86f1")
+region = Rect2(0, 0, 36, 21)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hh7rd"]
+atlas = ExtResource("1_c86f1")
+region = Rect2(72, 0, 36, 21)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i6cij")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_it3t8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5l4vd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hh7rd")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]

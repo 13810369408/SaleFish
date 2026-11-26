@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="FishDef" format=3 uid="uid://caombhfdo73f7"]
+
+[ext_resource type="Resource" path="res://Data/Fishing/Baits/WormBait.tres" id="1_yu27m"]
+[ext_resource type="Resource" uid="uid://uot2b77qcwpn" path="res://Data/Fishing/Strategies/ClassicBehavior.tres" id="2_4atcw"]
+[ext_resource type="Resource" path="res://Data/Fishing/Hooks/BasicHook.tres" id="3_pddrh"]
+[ext_resource type="Resource" uid="uid://bul4wsogeoufk" path="res://Data/Inventory/Items/SunfishItem.tres" id="4_o33yd"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/UltraSmall.tres" id="5_whw3p"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Small.tres" id="6_3vda3"]
+[ext_resource type="SpriteFrames" uid="uid://bawkrb1t22k3o" path="res://Assets/Fish/MolaMola/MolaMolaAnim.tres" id="7_22k2n"]
+[ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="8_44w5a"]
+[ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="9_uhhgo"]
+[ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="10_nmys2"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Huge.tres" id="11_nbo8b"]
+[ext_resource type="Script" uid="uid://dyksfmej1k2qt" path="res://Scripts/Fishing/FishDef.cs" id="12_ojist"]
+
+[resource]
+script = ExtResource("12_ojist")
+Id = 12
+DisplayName = "翻车鱼"
+Size = 4
+SellPrice = 600.0
+ItemDef = ExtResource("4_o33yd")
+SpriteFrames = ExtResource("7_22k2n")
+NormalPlaySpeed = 0.6
+StrugglePlaySpeed = 1.2
+ExhaustedPlaySpeed = 0.3
+Hooks = [ExtResource("3_pddrh")]
+Baits = [ExtResource("1_yu27m")]
+Tags = [ExtResource("11_nbo8b")]
+LiveBaitTags = [ExtResource("5_whw3p"), ExtResource("6_3vda3")]
+MaxStamina = 30.0
+MaxEndurance = 22.0
+PullSpeed = 140.0
+BehaviorStrategy = ExtResource("2_4atcw")
+Struggle = ExtResource("8_44w5a")
+StruggleScreenShake = ExtResource("10_nmys2")
+StruggleFxPrefab = ExtResource("9_uhhgo")

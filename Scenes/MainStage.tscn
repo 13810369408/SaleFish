@@ -1,0 +1,166 @@
+[gd_scene format=3 uid="uid://d2kwi2fdygnaf"]
+
+[ext_resource type="Script" uid="uid://bqdlg2jqy4hqw" path="res://Scripts/Main/MainStage.cs" id="1_main"]
+[ext_resource type="Texture2D" uid="uid://oxnqhnreyg80" path="res://Assets/SceneImage/Scene.png" id="6_8ie50"]
+[ext_resource type="Texture2D" uid="uid://3g27a512k1qj" path="res://Assets/SceneImage/BoxButton.png" id="7_8ie50"]
+[ext_resource type="Texture2D" uid="uid://b6oxvha1iqxv3" path="res://Assets/SceneImage/Player.png" id="7_y23v6"]
+[ext_resource type="Resource" path="res://Data/Fishing/Hooks/BasicHook.tres" id="9_41sam"]
+[ext_resource type="Resource" path="res://Data/Fishing/Baits/WormBait.tres" id="10_8qbs2"]
+[ext_resource type="Resource" uid="uid://cehmrxyx8r4tl" path="res://Data/Inventory/Storage/MainBag.tres" id="10_storage"]
+[ext_resource type="Script" uid="uid://b3ihmyosexqyb" path="res://Scripts/Fishing/Hook.cs" id="11_hook"]
+[ext_resource type="Script" uid="uid://ct2u4jo1v140w" path="res://Scripts/Fishing/FishSpawner.cs" id="12_spawner"]
+[ext_resource type="Resource" uid="uid://qractg8r0h8j" path="res://Data/Fishing/Fish/Sartine.tres" id="13_carp"]
+[ext_resource type="Script" uid="uid://b3jotpfd7e88k" path="res://Scripts/Fishing/WaterDots.cs" id="14_waterdots"]
+[ext_resource type="Resource" uid="uid://q5myrlsk8bf" path="res://Data/Fishing/Lines/BasicLine.tres" id="15_line"]
+[ext_resource type="Script" uid="uid://cjwlfcpdse53f" path="res://Scripts/Fishing/WaterBody.cs" id="16_waterbody"]
+[ext_resource type="PackedScene" uid="uid://6ldutpkyep5p" path="res://Scenes/FishPrefab.tscn" id="17_fishprefab"]
+[ext_resource type="Script" uid="uid://dgbjjjuf44kdx" path="res://Scripts/View/WarehouseButton.cs" id="18_whbtn"]
+[ext_resource type="PackedScene" uid="uid://dr0jxiu165bla" path="res://Scenes/MenuUi.tscn" id="19_menuui"]
+[ext_resource type="Script" uid="uid://bsj63vfccy7e4" path="res://Scripts/Fishing/FishingSpot.cs" id="20_spot"]
+[ext_resource type="Texture2D" uid="uid://cs0v6imyrrukf" path="res://Assets/SceneImage/Chair.png" id="21_chair"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_water"]
+size = Vector2(12000, 5500)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(60, 143)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(3722, 121)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_spotdetect"]
+size = Vector2(191, 157)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hook"]
+radius = 8.0
+
+[node name="MainStage" type="Node2D" unique_id=1128462316]
+script = ExtResource("1_main")
+LineSagPeak = 0.7000000000000001
+ShowTestText = false
+
+[node name="Scene" type="Sprite2D" parent="." unique_id=1489669053]
+position = Vector2(-1494, -168)
+scale = Vector2(6, 6)
+texture = ExtResource("6_8ie50")
+
+[node name="WarehouseAnchor" type="Marker2D" parent="." unique_id=827364512]
+position = Vector2(-491, -43)
+
+[node name="Inventory" type="Sprite2D" parent="." unique_id=436649623]
+position = Vector2(44.67, 103.865)
+scale = Vector2(6, 6)
+texture = ExtResource("7_8ie50")
+script = ExtResource("18_whbtn")
+Storage = ExtResource("10_storage")
+UiHostPath = NodePath("../UI/Hud")
+WarehouseAnchorPath = NodePath("../WarehouseAnchor")
+
+[node name="Water" type="Area2D" parent="." unique_id=436649624]
+position = Vector2(6285, 773)
+script = ExtResource("16_waterbody")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Water" unique_id=833955721]
+position = Vector2(0, 2250)
+shape = SubResource("RectangleShape2D_water")
+
+[node name="Visual" type="Polygon2D" parent="Water" unique_id=801134296]
+color = Color(0.25, 0.55, 0.95, 0.55)
+polygon = PackedVector2Array(-6000, -500, 6000, -500, 6000, 5000, -6000, 5000)
+
+[node name="WaterDots" type="Node2D" parent="Water" unique_id=977212002]
+script = ExtResource("14_waterdots")
+
+[node name="Lakebed" type="StaticBody2D" parent="." unique_id=1751791909]
+position = Vector2(6285, 1523)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Lakebed" unique_id=244048441]
+polygon = PackedVector2Array(-6000, -250, -887, 1740, 6000, 2500, 6000, 5000, -6000, 5000)
+
+[node name="Visual" type="Polygon2D" parent="Lakebed" unique_id=12303129]
+color = Color(0.35, 0.28, 0.2, 1)
+polygon = PackedVector2Array(-6000, -250, -887, 1740, 6000, 2500, 6000, 5000, -6000, 5000)
+
+[node name="FishingLine" type="Line2D" parent="." unique_id=515857939]
+width = 6.0
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=2001430752]
+position = Vector2(2, 47)
+
+[node name="Sprite" type="Sprite2D" parent="Player" unique_id=175297003]
+scale = Vector2(6, 6)
+texture = ExtResource("7_y23v6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=1119768121]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Ground" type="StaticBody2D" parent="." unique_id=1000305177]
+position = Vector2(-2313, 169)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=521093853]
+position = Vector2(772, 18.5)
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="FishingSpot" type="Node2D" parent="." unique_id=839664026]
+position = Vector2(180, 71)
+script = ExtResource("20_spot")
+
+[node name="Sprite" type="Sprite2D" parent="FishingSpot" unique_id=1896842790]
+scale = Vector2(6, 6)
+texture = ExtResource("21_chair")
+
+[node name="Detect" type="Area2D" parent="FishingSpot" unique_id=1063423443]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FishingSpot/Detect" unique_id=1519784815]
+shape = SubResource("RectangleShape2D_spotdetect")
+
+[node name="Highlight" type="Line2D" parent="FishingSpot" unique_id=363620248]
+visible = false
+position = Vector2(4.499996, 44.76577)
+scale = Vector2(0.3531746, 0.50900906)
+points = PackedVector2Array(-120, -190, 120, -190, 120, 20, -120, 20, -120, -190)
+width = 6.0
+default_color = Color(1, 0.85, 0.2, 1)
+
+[node name="Hook" type="Area2D" parent="." unique_id=436649625]
+position = Vector2(409, 91)
+script = ExtResource("11_hook")
+Weight = 2.0
+ReelSpeed = 400.0
+ReelSurfaceGap = 0.0
+LiftUnlockRange = 300.0
+HookDef = ExtResource("9_41sam")
+Bait = ExtResource("10_8qbs2")
+Line = ExtResource("15_line")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hook" unique_id=366054577]
+shape = SubResource("CircleShape2D_hook")
+
+[node name="Placeholder" type="Polygon2D" parent="Hook" unique_id=1647677458]
+color = Color(0.95, 0.85, 0.3, 1)
+polygon = PackedVector2Array(0, 12, 8, -4, 0, -12, -8, -4)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=666162862]
+
+[node name="FishSpawner" type="Node" parent="." unique_id=977211001]
+script = ExtResource("12_spawner")
+SpawnPool = [ExtResource("13_carp")]
+CopiesPerDef = 5
+FishPrefab = ExtResource("17_fishprefab")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1673150093]
+
+[node name="Hud" type="Control" parent="UI" unique_id=1558369348]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MenuUi" parent="UI/Hud" unique_id=1439060888 instance=ExtResource("19_menuui")]
+layout_mode = 1

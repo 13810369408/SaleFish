@@ -1,0 +1,56 @@
+keys,zh,en
+menu.button.menu,菜单,Menu
+menu.button.resume,继续游戏,Resume
+menu.button.home,图鉴首页,Home
+menu.button.quit,退出游戏,Quit Game
+menu.prev,◀ 上一页,◀ Prev
+menu.next,下一页 ▶,Next ▶
+menu.page,第 {0} / {1} 页,Page {0} / {1}
+menu.empty,图鉴为空,No fish yet
+menu.blank,(空白),(Empty)
+menu.price,售价 {0},Price {0}
+fish.unnamed,未命名鱼,Unnamed fish
+fish.sartine,沙丁鱼,Sardine
+fishsize.ultra_small,超小型,Ultra Small
+fishsize.small,小型,Small
+fishsize.medium,中型,Medium
+fishsize.large,大型,Large
+fishsize.ultra_large,超大型,Huge
+ui.get,获取放置物,Get Item
+ui.discard,丢弃放置物,Discard Item
+ui.help,左键 拿起/放下 · 右键 旋转 90° · 点击宝箱图标 开关仓库 · 空手左键 抛竿→再点抛出（蓄力中右键取消抛竿） · 落水后按住左键 收线（/挣扎中施力）· 绿=可放 黄=可交换 红=冲突,"LMB pick/drop, RMB rotate 90°, click chest toggles bag, empty-hand LMB cast & click again to throw (RMB cancels while charging), hold LMB after splash to reel (pull while struggling) · green=place, yellow=swap, red=conflict"
+ui.speed,水平 {0:F1} px/s   |   垂直 {1:F1} px/s,H {0:F1} px/s   |   V {1:F1} px/s
+ui.struggle,体力 {0:F1}/{1:F1}   耐力 {2:F1}/{3:F1}   拉力 {4:F0}/{5:F0}   {6}   线长 {7:F0}/{8:F0},Stamina {0:F1}/{1:F1}   Endurance {2:F1}/{3:F1}   Tension {4:F0}/{5:F0}   {6}   Line {7:F0}/{8:F0}
+ui.struggle.pull,挣扎·拉住,Struggling·hold
+ui.struggle.calm,平静·可收线,Calm·reel
+status.empty,空手 · 点击「获取放置物」拿一件物品,"Empty · click ""Get Item"" to take one"
+status.holding,手持：{0}  {1}×{2} 占 {3} 格,Holding {0}  {1}×{2}  {3} cells
+status.caught,钓上：{0}（在鼠标上，可存入仓库或丢弃）,Caught {0} (on cursor — store or discard)
+status.caught.noitem,钓上：该鱼未配置背包形态（无法生成物品）,Caught a fish with no bag form
+status.warehouse.opened,已打开仓库「{0}」（内容保留，拖拽可移动）,"Bag ""{0}"" opened (kept, draggable)"
+status.warehouse.closed,已隐藏仓库（内容保留，下次打开仍在原位）,Bag hidden (kept, reopens in place)
+status.warehouse.moved,仓库已移动到新位置：本次会话下次打开仍在当前位置,Bag moved — next open here this session
+status.warehouse.close,已关闭仓库（点击仓库外关闭；内容保留）,Bag closed (clicked outside; kept)
+status.get.empty,没有可用物品配置（随机池为空且无回退）,No items available (pool empty)
+menu.button.load,加载游戏,Load Game
+menu.button.new,新游戏,New Game
+menu.button.settings,设置,Settings
+menu.settings.language,语言,Language
+menu.slot.title,选择存档,Select a save
+menu.slot.name,档位 {0},Slot {0}
+menu.slot.meta,{0} · {1} · 已钓 {2},{0} · {1} · Caught {2}
+menu.slot.empty,空,Empty
+menu.slot.delete,删除,Delete
+menu.slot.confirm,确认删除存档「{0}」？删除后不可找回。,Delete save {0}? This cannot be undone.
+menu.slot.yes,是,Yes
+menu.slot.no,否,No
+menu.slot.close,关闭,Close
+menu.slot.hint,需选择空白存档位来开始新游戏。,Pick an empty slot to start a new game.
+menu.slot.emptyhint,该槽位没有存档。,This slot has no save.
+menu.button.saveandquit,保存并返回主界面,Save & Return to Menu
+ui.exit_fishing,退出钓鱼,Stop Fishing
+ui.sit_fish,坐下钓鱼,Sit & Fish
+status.freemove,自由移动：A/D 左右移动,Free roam: A/D to move
+status.ready_fish,已回到钓鱼点：空手左键抛竿,At the fishing spot — LMB to cast
+status.sit_fish_goto,正走向钓鱼点…,Walking to the fishing spot…
+status.hand.empty,空手（钓上的鱼可存入仓库）,Empty hands

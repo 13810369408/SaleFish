@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FishingHookDef" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fishing/FishingHookDef.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+Id = 1
+DisplayName = "基础鱼钩"
+Weight = 1.0

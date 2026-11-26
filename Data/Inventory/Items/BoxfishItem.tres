@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PlacementItemTypeDef" format=3 uid="uid://buwtlxsbjnew7"]
+
+[ext_resource type="Texture2D" uid="uid://bkn2qufhmq5wf" path="res://Assets/Fish/YellowBoxFish/YellowBoxFishItemTexture.tres" id="1_6riwp"]
+[ext_resource type="Script" uid="uid://exc2wj3vhwxb" path="res://Scripts/Inventory/PlacementItemTypeDef.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+DisplayName = "角箱魨"
+ShapePattern = PackedStringArray("xx", "xx")
+Texture = ExtResource("1_6riwp")
+DisplaySize = Vector2(2, 2)
+InitialGrabCell = Vector2i(0, 0)
+InitialSnap = Vector2(1, 1)

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://gsi8ch8rp8o3"]
+
+[ext_resource type="Script" path="res://Scripts/Test/TestRingBurstDelay.cs" id="1_test"]
+
+[node name="TestRingBurstDelay" type="Node"]
+script = ExtResource("1_test")

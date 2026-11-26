@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Test/TestLocalization.cs" id="1"]
+[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="2_loc"]
+
+[node name="TestLocalization" type="Node"]
+script = ExtResource("1")
+
+[node name="LocalizedButton" type="Button" parent="."]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 40.0
+text = "继续游戏"
+
+[node name="LocalizedText" type="Node" parent="LocalizedButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.resume"

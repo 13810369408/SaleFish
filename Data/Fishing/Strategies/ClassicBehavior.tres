@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ClassicBehavior" format=3 uid="uid://uot2b77qcwpn"]
+
+[ext_resource type="Script" uid="uid://scdplc3xfhqe" path="res://Scripts/Fishing/FishBehavior/ClassicBehavior.cs" id="1_behavior"]
+
+[resource]
+script = ExtResource("1_behavior")
+PatrolDistanceX = 180.0
+PatrolSpeed = 55.0
+ChaseSpeed = 140.0
+SenseRadius = 130.0
+ChaseRange = 700.0
+SwimDepthMin = 40.0
+SwimDepthMax = 160.0

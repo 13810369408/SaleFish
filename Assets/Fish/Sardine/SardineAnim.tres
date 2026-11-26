@@ -1,0 +1,25 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://5nxcl210qc2q"]
+
+[ext_resource type="Texture2D" uid="uid://yr6fk4si6bf7" path="res://Assets/Fish/Sardine/Sardine.png" id="1_7ggmw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tx5p7"]
+atlas = ExtResource("1_7ggmw")
+region = Rect2(0, 0, 16, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3elb2"]
+atlas = ExtResource("1_7ggmw")
+region = Rect2(16, 0, 16, 9)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tx5p7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3elb2")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 4.0
+}]

@@ -1,0 +1,346 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Main/MainMenu.cs" id="1_menu"]
+[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="2_loc"]
+[ext_resource type="PackedScene" uid="uid://dlh4ch3fgmst1" path="res://Scenes/SettingsUi.tscn" id="3_settings"]
+[ext_resource type="Script" path="res://Scripts/Main/SettingsUi.cs" id="4_setui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Panel"]
+content_margin_left = 18.0
+content_margin_top = 18.0
+content_margin_right = 18.0
+content_margin_bottom = 18.0
+bg_color = Color(0.51, 0.39, 0.23, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.42, 0.28, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.12, 0.15, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Title" type="Label" parent="Center/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 64
+text = "SaleFish"
+horizontal_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "继续游戏"
+
+[node name="LocalizedText" type="Node" parent="Center/Column/ContinueButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.resume"
+
+[node name="LoadButton" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "加载游戏"
+
+[node name="LocalizedText" type="Node" parent="Center/Column/LoadButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.load"
+
+[node name="NewButton" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "新游戏"
+
+[node name="LocalizedText" type="Node" parent="Center/Column/NewButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.new"
+
+[node name="SettingsButton" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "设置"
+
+[node name="LocalizedText" type="Node" parent="Center/Column/SettingsButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.settings"
+
+[node name="QuitButton" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "退出游戏"
+
+[node name="LocalizedText" type="Node" parent="Center/Column/QuitButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.quit"
+
+[node name="SlotPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="SlotPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="SlotCenter" type="CenterContainer" parent="SlotPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SlotBox" type="Panel" parent="SlotPanel/SlotCenter"]
+custom_minimum_size = Vector2(520, 640)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="VBox" type="VBoxContainer" parent="SlotPanel/SlotCenter/SlotBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 22.0
+offset_right = -22.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="SlotTitle" type="Label" parent="SlotPanel/SlotCenter/SlotBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.91, 0.82, 1)
+theme_override_font_sizes/font_size = 30
+text = "选择存档"
+horizontal_alignment = 1
+
+[node name="LocalizedText" type="Node" parent="SlotPanel/SlotCenter/SlotBox/VBox/SlotTitle"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.slot.title"
+
+[node name="SlotRows" type="VBoxContainer" parent="SlotPanel/SlotCenter/SlotBox/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HintLabel" type="Label" parent="SlotPanel/SlotCenter/SlotBox/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.45, 1)
+theme_override_font_sizes/font_size = 20
+text = "需选择空白存档位来开始新游戏"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer" type="Control" parent="SlotPanel/SlotCenter/SlotBox/VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseButton" type="Button" parent="SlotPanel/SlotCenter/SlotBox/VBox"]
+custom_minimum_size = Vector2(180, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "关闭"
+
+[node name="LocalizedText" type="Node" parent="SlotPanel/SlotCenter/SlotBox/VBox/CloseButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.slot.close"
+
+[node name="SettingsPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="SettingsCenter" type="CenterContainer" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsBox" type="Panel" parent="SettingsPanel/SettingsCenter"]
+custom_minimum_size = Vector2(480, 340)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="VBox" type="VBoxContainer" parent="SettingsPanel/SettingsCenter/SettingsBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 22.0
+offset_right = -22.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="SettingsTitle" type="Label" parent="SettingsPanel/SettingsCenter/SettingsBox/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.91, 0.82, 1)
+theme_override_font_sizes/font_size = 30
+text = "设置"
+horizontal_alignment = 1
+
+[node name="LocalizedText" type="Node" parent="SettingsPanel/SettingsCenter/SettingsBox/VBox/SettingsTitle"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.button.settings"
+
+[node name="SettingsUi" parent="SettingsPanel/SettingsCenter/SettingsBox/VBox" instance=ExtResource("3_settings")]
+layout_mode = 2
+
+[node name="Spacer2" type="Control" parent="SettingsPanel/SettingsCenter/SettingsBox/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseButton" type="Button" parent="SettingsPanel/SettingsCenter/SettingsBox/VBox"]
+custom_minimum_size = Vector2(180, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "关闭"
+
+[node name="LocalizedText" type="Node" parent="SettingsPanel/SettingsCenter/SettingsBox/VBox/CloseButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.slot.close"
+
+[node name="ConfirmPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="ConfirmPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="ConfirmCenter" type="CenterContainer" parent="ConfirmPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ConfirmBox" type="Panel" parent="ConfirmPanel/ConfirmCenter"]
+custom_minimum_size = Vector2(600, 300)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Panel")
+
+[node name="VBox" type="VBoxContainer" parent="ConfirmPanel/ConfirmCenter/ConfirmBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 26
+
+[node name="ConfirmLabel" type="Label" parent="ConfirmPanel/ConfirmCenter/ConfirmBox/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.94, 0.91, 0.82, 1)
+theme_override_font_sizes/font_size = 26
+text = "确认删除存档？删除后不可找回。"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="ConfirmPanel/ConfirmCenter/ConfirmBox/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 48
+alignment = 1
+
+[node name="YesButton" type="Button" parent="ConfirmPanel/ConfirmCenter/ConfirmBox/VBox/Buttons"]
+custom_minimum_size = Vector2(150, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "是"
+
+[node name="LocalizedText" type="Node" parent="ConfirmPanel/ConfirmCenter/ConfirmBox/VBox/Buttons/YesButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.slot.yes"
+
+[node name="NoButton" type="Button" parent="ConfirmPanel/ConfirmCenter/ConfirmBox/VBox/Buttons"]
+custom_minimum_size = Vector2(150, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "否"
+
+[node name="LocalizedText" type="Node" parent="ConfirmPanel/ConfirmCenter/ConfirmBox/VBox/Buttons/NoButton"]
+script = ExtResource("2_loc")
+LocalizationKey = "menu.slot.no"

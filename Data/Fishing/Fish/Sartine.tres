@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="FishDef" format=3 uid="uid://qractg8r0h8j"]
+
+[ext_resource type="Script" uid="uid://dyksfmej1k2qt" path="res://Scripts/Fishing/FishDef.cs" id="1_script"]
+[ext_resource type="Resource" path="res://Data/Fishing/Hooks/BasicHook.tres" id="3_hook"]
+[ext_resource type="Resource" uid="uid://drtqrji7acn04" path="res://Data/Inventory/Items/SartineItem.tres" id="4_5cet1"]
+[ext_resource type="Resource" path="res://Data/Fishing/Baits/WormBait.tres" id="4_bait"]
+[ext_resource type="SpriteFrames" uid="uid://5nxcl210qc2q" path="res://Assets/Fish/Sardine/SardineAnim.tres" id="5_fhgvs"]
+[ext_resource type="Resource" path="res://Data/Fishing/Strategies/ClassicBehavior.tres" id="6_behavior_strategy"]
+[ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="7_bekis"]
+[ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="7_struggle"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/UltraSmall.tres" id="7_uawo0"]
+[ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="8_u337y"]
+
+[resource]
+script = ExtResource("1_script")
+Id = 1
+DisplayName = "沙丁鱼"
+LocalizationKey = "fish.sartine"
+SellPrice = 50.0
+ItemDef = ExtResource("4_5cet1")
+SpriteFrames = ExtResource("5_fhgvs")
+StrugglePlaySpeed = 2.0
+ExhaustedPlaySpeed = 0.5
+MouthOffset = Vector2(0, 6)
+Hooks = [ExtResource("3_hook")]
+Baits = [ExtResource("4_bait")]
+Tags = [ExtResource("7_uawo0")]
+MaxStamina = 8.0
+MaxEndurance = 8.0
+PullSpeed = 90.0
+BehaviorStrategy = ExtResource("6_behavior_strategy")
+Struggle = ExtResource("7_struggle")
+StruggleScreenShake = ExtResource("8_u337y")
+StruggleFxPrefab = ExtResource("7_bekis")

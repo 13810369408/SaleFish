@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="FishDef" format=3 uid="uid://bk3scar8ap1w4"]
+
+[ext_resource type="Script" uid="uid://dyksfmej1k2qt" path="res://Scripts/Fishing/FishDef.cs" id="1_script"]
+[ext_resource type="Resource" path="res://Data/Fishing/Hooks/BasicHook.tres" id="2_hook"]
+[ext_resource type="Resource" path="res://Data/Fishing/Baits/WormBait.tres" id="3_bait"]
+[ext_resource type="Resource" uid="uid://buwtlxsbjnew7" path="res://Data/Inventory/Items/BoxfishItem.tres" id="4_item"]
+[ext_resource type="Resource" path="res://Data/Fishing/Strategies/ClassicBehavior.tres" id="5_behavior"]
+[ext_resource type="SpriteFrames" uid="uid://nnr4uhwd2g41" path="res://Assets/Fish/YellowBoxFish/YellowBoxFishAnim.tres" id="5_klaxj"]
+[ext_resource type="Resource" uid="uid://xef0kfwm12s1" path="res://Data/Fishing/Strategies/ClassicStruggle.tres" id="6_struggle"]
+[ext_resource type="Resource" uid="uid://e4hegagi1c2q" path="res://Data/Common/Level1ScreenShake.tres" id="7_shake"]
+[ext_resource type="PackedScene" uid="uid://cm30d10biqnwa" path="res://Assets/Fx/FxRingBurst.tscn" id="8_fx"]
+[ext_resource type="Resource" path="res://Data/Fishing/Tags/Small.tres" id="9_tag"]
+
+[resource]
+script = ExtResource("1_script")
+Id = 11
+DisplayName = "角箱魨"
+Size = 1
+SellPrice = 150.0
+ItemDef = ExtResource("4_item")
+SpriteFrames = ExtResource("5_klaxj")
+NormalPlaySpeed = 0.8
+StrugglePlaySpeed = 1.2
+ExhaustedPlaySpeed = 0.4
+Hooks = [ExtResource("2_hook")]
+Baits = [ExtResource("3_bait")]
+Tags = [ExtResource("9_tag")]
+MaxEndurance = 12.0
+PullSpeed = 70.0
+BehaviorStrategy = ExtResource("5_behavior")
+Struggle = ExtResource("6_struggle")
+StruggleScreenShake = ExtResource("7_shake")
+StruggleFxPrefab = ExtResource("8_fx")

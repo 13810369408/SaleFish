@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PlacementItemTypeDef" format=3 uid="uid://bmssrgkf8hm7"]
+
+[ext_resource type="Script" uid="uid://exc2wj3vhwxb" path="res://Scripts/Inventory/PlacementItemTypeDef.cs" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://ciwxbu5utr0h3" path="res://Assets/Fish/SeaBass/SeaBassItemTexture.tres" id="1_yiskw"]
+
+[resource]
+script = ExtResource("1_script")
+DisplayName = "海鲈鱼"
+ShapePattern = PackedStringArray("xxx", "xxx")
+Texture = ExtResource("1_yiskw")
+DisplaySize = Vector2(3, 2)

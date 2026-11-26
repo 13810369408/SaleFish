@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="StorageTypeDef" format=3 uid="uid://cehmrxyx8r4tl"]
+
+[ext_resource type="Texture2D" uid="uid://cq8gjh0didswp" path="res://Assets/InventoryImage/Box.png" id="1_b4wri"]
+[ext_resource type="Script" uid="uid://dwglxohnytsxo" path="res://Scripts/Inventory/StorageTypeDef.cs" id="1_cfg"]
+[ext_resource type="Texture2D" uid="uid://cx3i7li2314sm" path="res://Assets/InventoryImage/GridEmpty.tres" id="2_b4wri"]
+[ext_resource type="Texture2D" uid="uid://cfkau36aimi4w" path="res://Assets/InventoryImage/GridFull.tres" id="3_q1yqy"]
+
+[resource]
+script = ExtResource("1_cfg")
+Id = 2001
+DisplayName = "主背包"
+CellSize = 84
+ValidPattern = PackedStringArray("xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx")
+CellTexture = ExtResource("2_b4wri")
+CellTextureWithItem = ExtResource("3_q1yqy")
+BackgroundTexture = ExtResource("1_b4wri")
+BackgroundTextureSize = Vector2(10, 8)
+BackgroundTextureOffset = Vector2(0.036, -0.393)

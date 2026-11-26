@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ScreenShakePreset" format=3 uid="uid://e4hegagi1c2q"]
+
+[ext_resource type="Script" uid="uid://ce1g2vag6vqw" path="res://Scripts/View/ScreenShakePreset.cs" id="1_1aklq"]
+
+[resource]
+script = ExtResource("1_1aklq")
+DisplayName = "一级震屏效果"
+Amplitude = 2.0
+Frequency = 35.0
+Duration = 0.8

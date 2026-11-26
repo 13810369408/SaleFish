@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FishingLineDef" format=3 uid="uid://q5myrlsk8bf"]
+
+[ext_resource type="Script" uid="uid://on17r7n6v48" path="res://Scripts/Fishing/FishingLineDef.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+Id = 1
+DisplayName = "基础鱼线"
+Length = 3200.0

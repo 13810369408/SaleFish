@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ClassicStruggle" format=3 uid="uid://xef0kfwm12s1"]
+
+[ext_resource type="Script" uid="uid://ql7fhxbetmuj" path="res://Scripts/Fishing/FishStruggle/ClassicStruggle.cs" id="1_struggle"]
+
+[resource]
+script = ExtResource("1_struggle")

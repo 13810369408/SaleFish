@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://di62addr1w18x"]
+
+[ext_resource type="Script" uid="uid://cup7xwlaxr0n2" path="res://Scripts/Test/TestSpatialInventory.cs" id="1"]
+[ext_resource type="Resource" uid="uid://drtqrji7acn04" path="res://Data/Inventory/Items/SartineItem.tres" id="2_5fnwc"]
+[ext_resource type="Resource" uid="uid://bmssrgkf8hm7" path="res://Data/Inventory/Items/SeaBassItem.tres" id="3_5fnwc"]
+[ext_resource type="Resource" uid="uid://buwtlxsbjnew7" path="res://Data/Inventory/Items/BoxfishItem.tres" id="4_t8t5n"]
+[ext_resource type="Resource" uid="uid://bul4wsogeoufk" path="res://Data/Inventory/Items/SunfishItem.tres" id="6_sunfish"]
+[ext_resource type="Resource" uid="uid://cehmrxyx8r4tl" path="res://Data/Inventory/Storage/MainBag.tres" id="5_storage"]
+
+[node name="TestSpatialInventory" type="Control" unique_id=1179201834]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
+Storage = ExtResource("5_storage")
+RandomPool = [ExtResource("2_5fnwc"), ExtResource("3_5fnwc"), ExtResource("4_t8t5n"), ExtResource("6_sunfish")]
