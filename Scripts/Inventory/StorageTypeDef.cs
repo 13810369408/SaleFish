@@ -62,11 +62,11 @@ public sealed partial class StorageTypeDef : Resource
     /// <summary>关闭按钮贴图：为空 = 不生成关闭按钮。</summary>
     [Export] public Texture2D? CloseButtonTexture;
 
-    /// <summary>关闭按钮位置：相对仓库面板左上角的像素偏移（面板 = 视图 Position，即背景盒左上角）。</summary>
-    [Export] public Vector2 CloseButtonPosition;
-
     /// <summary>关闭按钮尺寸（像素）。</summary>
     [Export] public Vector2 CloseButtonSize = new(48, 48);
+    
+    /// <summary>关闭按钮位置：相对仓库面板左上角的像素偏移（面板 = 视图 Position，即背景盒左上角）。</summary>
+    [Export] public Vector2 CloseButtonPosition;
 
     /// <summary>转换为数据层空间；ValidPattern 为空时返回 null（不生成，由调用方决定回退或提示配置错误）。</summary>
     public StorageSpace? ToSpace() =>

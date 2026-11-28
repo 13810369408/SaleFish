@@ -34,6 +34,9 @@ public sealed partial class InventoryView : Control
     /// <summary>按配置生成的关闭按钮（<see cref="StorageTypeDef.CloseButtonTexture"/> 为空时不存在）。</summary>
     private TextureButton? _closeButton;
 
+    /// <summary>交互锁定（准备开店阶段用）：锁定后不可整仓拖动、关闭按钮隐藏；放置/拾取仍可用。</summary>
+    private bool _locked;
+
     /// <summary>本仓库视图的所属按钮（创建它的 WarehouseButton）：宿主「外部点击关仓」据此定位到按钮再关，
     /// 保证按钮的生命周期/位置记忆/事件一致。测试/演示直接 CreateStorage 建的视图无按钮（null），
     /// 宿主遇到时退化为直接 Hide。</summary>
@@ -58,6 +61,7 @@ public sealed partial class InventoryView : Control
         if (gridOffset.HasValue) GridOffset = gridOffset.Value;
         _storageLook = storageLook;
         _canDrag = storageLook?.CanDrag ?? false;   // 默认不可拖
+        _locked = false;                             // 池化复用：恢复成未锁定
         SyncCloseButton(storageLook);
         // 池化复用的视图可能曾被 Hide（不可见）后交回，重新挂载时要恢复到可见的初始状态。
         _hidden = false;
@@ -191,8 +195,8 @@ public sealed partial class InventoryView : Control
                 // 空手 + 点到背景/空格子（无物品可拾）→ 整仓随鼠标移动；否则交回手（拾起或放置）。
                 if (hand.HeldItem == null && !hand.IsRotateAnimating && !GetItemAtCell(mb.Position))
                 {
-                    if (_canDrag) StartDrag(mb.Position);   // mb.Position 已是视图本地坐标
-                    return;                                 // 不可拖动的仓库：点背景/空格子什么都不做
+                    if (_canDrag && !_locked) StartDrag(mb.Position);   // mb.Position 已是视图本地坐标
+                    return;                                 // 不可拖/锁定：点背景/空格子什么都不做
                 }
                 hand.OnLeftPressed(this, mb.Position);   // Position 已是视图本地坐标
                 break;
@@ -218,7 +222,7 @@ public sealed partial class InventoryView : Control
     /// 手持放置物时调用无效（拖拽只在空手时成立，与 _GuiInput 分流一致，这里再做一次防御）。</summary>
     public void StartDrag(Vector2 viewLocalPos)
     {
-        if (!_canDrag) return;   // 仓库配置「能否拖动」= false：面板固定
+        if (!_canDrag || _locked) return;   // 仓库配置「能否拖动」= false 或已锁定：面板固定
         if (HeldItemController.Instance?.HeldItem != null) return;
         _dragActive = true;
         _dragGrabLocal = viewLocalPos;
@@ -275,6 +279,13 @@ public sealed partial class InventoryView : Control
         };
         AddChild(button);
         _closeButton = button;
+    }
+
+    /// <summary>切换交互锁定（准备开店阶段）：锁定 = 不可拖动 + 关闭按钮隐藏（放置/拾取仍可用）。</summary>
+    public void SetLocked(bool locked)
+    {
+        _locked = locked;
+        if (_closeButton != null) _closeButton.Visible = !locked;
     }
 
     /// <summary>像素坐标（视图本地）→ 格子坐标（不裁剪，允许负数与越界值，由容器判定）。</summary>

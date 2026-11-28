@@ -4,16 +4,20 @@
 [ext_resource type="Script" uid="uid://dwglxohnytsxo" path="res://Scripts/Inventory/StorageTypeDef.cs" id="1_cfg"]
 [ext_resource type="Texture2D" uid="uid://cx3i7li2314sm" path="res://Assets/InventoryImage/GridEmpty.tres" id="2_b4wri"]
 [ext_resource type="Texture2D" uid="uid://cfkau36aimi4w" path="res://Assets/InventoryImage/GridFull.tres" id="3_q1yqy"]
+[ext_resource type="Texture2D" uid="uid://dm0sx3qt0nx5c" path="res://Assets/InventoryImage/CloseButton.png" id="4_5bv80"]
 
 [resource]
 script = ExtResource("1_cfg")
 Id = 2001
 DisplayName = "鱼护"
-CanDrag = true
 CellSize = 84
 ValidPattern = PackedStringArray("xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx", "xxxxxxxx")
-CellTexture = ExtResource("2_b4wri")
-CellTextureWithItem = ExtResource("3_q1yqy")
+CanDrag = true
 BackgroundTexture = ExtResource("1_b4wri")
 BackgroundTextureSize = Vector2(10, 8)
 BackgroundTextureOffset = Vector2(0.036, -0.393)
+CellTexture = ExtResource("2_b4wri")
+CellTextureWithItem = ExtResource("3_q1yqy")
+CloseButtonTexture = ExtResource("4_5bv80")
+CloseButtonSize = Vector2(90, 78)
+CloseButtonPosition = Vector2(372, 660)

@@ -13,25 +13,6 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_shopui")
 
-[node name="StartSellButton" type="Button" parent="."]
-layout_mode = 1
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -300.0
-offset_top = -132.0
-offset_right = -40.0
-offset_bottom = -48.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 28
-text = "开始卖鱼"
-
-[node name="LocalizedText" type="Node" parent="StartSellButton"]
-script = ExtResource("2_loc")
-LocalizationKey = "shop.start_sell"
-
 [node name="PricePanel" type="Panel" parent="."]
 visible = false
 layout_mode = 1
@@ -78,15 +59,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="CloseButton" type="Button" parent="PricePanel/VBox"]
+[node name="StartShopButton" type="Button" parent="PricePanel/VBox"]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "关闭"
+text = "开始开店"
 
-[node name="LocalizedText" type="Node" parent="PricePanel/VBox/CloseButton"]
+[node name="LocalizedText" type="Node" parent="PricePanel/VBox/StartShopButton"]
 script = ExtResource("2_loc")
-LocalizationKey = "shop.close"
+LocalizationKey = "shop.start_open"
 
 [node name="ResultPanel" type="Panel" parent="."]
 visible = false

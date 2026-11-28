@@ -20,7 +20,6 @@ public sealed partial class ShopUi : Control
     /// <summary>价格板里的一行（鱼种）：名字 + 图鉴里的历史最高成交价（没卖过 = null）。</summary>
     public readonly record struct PriceRow(long FishId, string Name, int? HistoricalPrice);
 
-    private Button _startSell = null!;
     private Panel _pricePanel = null!;
     private VBoxContainer _priceRows = null!;
     private Panel _resultPanel = null!;
@@ -35,7 +34,7 @@ public sealed partial class ShopUi : Control
     private bool _detailShown;
     private readonly Dictionary<long, LineEdit> _editors = [];
 
-    /// <summary>点「开始卖鱼」。</summary>
+    /// <summary>点价格板下方的「开始开店」（开始卖鱼）。</summary>
     public event Action? StartSellPressed;
     /// <summary>价格板被关闭（宿主可据此刷新状态栏）。</summary>
     public event Action? PriceBoardClosed;
@@ -58,7 +57,6 @@ public sealed partial class ShopUi : Control
 
     public override void _Ready()
     {
-        _startSell = GetNode<Button>("StartSellButton");
         _pricePanel = GetNode<Panel>("PricePanel");
         _priceRows = GetNode<VBoxContainer>("PricePanel/VBox/Scroll/Rows");
         _resultPanel = GetNode<Panel>("ResultPanel");
@@ -70,10 +68,8 @@ public sealed partial class ShopUi : Control
         _warnOverlay = GetNode<Control>("WarnOverlay");
         _warnMessage = GetNode<Label>("WarnOverlay/Center/Panel/VBox/Message");
 
-        _startSell.Pressed += () => StartSellPressed?.Invoke();
-        _startSell.Visible = false;
-
-        GetNode<Button>("PricePanel/VBox/CloseButton").Pressed += () => ClosePriceBoard();
+        // 价格板下方的按钮 = 「开始开店」（开始卖鱼）：准备开店阶段玩家不能关页面，只能定价后点它开卖。
+        GetNode<Button>("PricePanel/VBox/StartShopButton").Pressed += () => StartSellPressed?.Invoke();
         GetNode<Button>("ResultPanel/VBox/DetailButton").Pressed += ToggleDetail;
         GetNode<Button>("ResultPanel/VBox/CloseButton").Pressed += () => ResultClosed?.Invoke();
 
@@ -98,9 +94,6 @@ public sealed partial class ShopUi : Control
         _confirmOverlay.Hide();
         _warnOverlay.Hide();
     }
-
-    /// <summary>「开始卖鱼」按钮显隐（仅准备开店阶段显示）。</summary>
-    public void SetStartSellVisible(bool on) => _startSell.Visible = on;
 
     /// <summary>打开/刷新价格板：按给定的鱼种行重建（已填价格从 SaveManager.ShopPrices 回填）。</summary>
     public void OpenPriceBoard(IReadOnlyList<PriceRow> rows)

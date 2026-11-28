@@ -16,13 +16,15 @@ namespace SaleFish.Main;
 /// MainStage 的「鱼店 / 卖鱼」部分（partial，功能独立成文件，场景仍是一个主关卡）：
 ///
 /// 流程：
-///  Ready --点「退出钓鱼」--> <b>PrepareShop 准备开店</b>（玩家 + 鱼护 传送到鱼店）
-///    · 可把鱼从鱼护拖进 仓库1~5；点价格板逐种定价（0~999）
-///    · 右下角「开始卖鱼」：有鱼未标价 → 只能关闭的警告；鱼护还有鱼 → 是/否确认
+///  Ready --点「退出钓鱼」--> <b>PrepareShop 准备开店</b>（玩家 + 鱼护 传送到鱼店，开店页面自动打开）
+///    · 开店页面 = 仓库 + 鱼护 + 价格板 一起开；鱼护与仓库被锁定（不可拖动、无关闭按钮）
+///    · 玩家只能把鱼从鱼护放进仓库、在价格板上逐种标价（0~999）；不能关闭页面
+///    · 价格板下方「开始开店」：有鱼未标价 → 只能关闭的警告；鱼护还有鱼 → 是/否确认
 ///  --> <b>Selling 开始卖鱼</b>（快速结算：SellService 纯逻辑）
 ///    · 结算结果立即落地（金币到账、卖掉的鱼从仓库移除、图鉴记录最高成交价）并自动存档
 ///    · 弹出结算面板（总收入 / 每种鱼卖出与剩余 / 详细信息 = 每个顾客买了什么）
 ///    · 点「结束」→ FreeMove 自由移动；走回钓鱼点坐下 → Ready 时鱼护自动搬回钓鱼区
+///    · 存档在准备开店阶段 → 读档进入自动重新打开开店页面
 /// </summary>
 public sealed partial class MainStage
 {
@@ -81,13 +83,12 @@ public sealed partial class MainStage
             _shopUi.StartSellPressed += OnStartSellPressed;
             _shopUi.ConfirmAccepted += OnSellConfirmed;
             _shopUi.ResultClosed += OnSellResultClosed;
-            _shopUi.PriceBoardClosed += OnPriceBoardClosedByUser;
         }
         if (_fishShop == null) GD.PushWarning("[MainStage] 找不到 FishShop（鱼店）：靠近高亮不可用。");
         if (_fishKeepSprite == null) GD.PushWarning("[MainStage] 找不到 FishKeep（鱼护）：开店传送不可用。");
     }
 
-    /// <summary>「退出钓鱼」= 去鱼店：把玩家和鱼护一起传送到鱼店，进入准备开店阶段。</summary>
+    /// <summary>「退出钓鱼」= 去鱼店：把玩家和鱼护一起传送到鱼店，进入准备开店阶段并自动打开开店页面。</summary>
     public void GoToShop()
     {
         if (Phase != GamePhase.ReadyFishing) return;
@@ -99,7 +100,7 @@ public sealed partial class MainStage
         SetPhase(GamePhase.PrepareShop);
         _status.Text = Localizer.T("shop.prepare.enter");
         RefreshButtons();
-        RefreshShopHud();
+        OpenShopPage();   // 进店自动打开仓库 + 鱼护 + 价格板
     }
 
     /// <summary>把鱼护搬到鱼店旁（准备开店时）。</summary>
@@ -116,46 +117,40 @@ public sealed partial class MainStage
             _fishKeepSprite.GlobalPosition = _fishKeepHome;
     }
 
-    /// <summary>每帧：鱼店高亮 + 「开始卖鱼」按钮显隐（仅准备开店、且没有弹窗时）。</summary>
+    /// <summary>每帧：鱼店高亮（玩家靠近显示）。</summary>
     public void UpdateShopUi()
     {
         if (_fishShop != null && _player != null)
             _fishShop.SetHighlight(_fishShop.IsPointInside(_player.GlobalPosition));
-        RefreshShopHud();
     }
 
-    /// <summary>刷新「开始卖鱼」按钮显隐（准备开店且无弹窗时才显示）。</summary>
-    private void RefreshShopHud()
-    {
-        _shopUi?.SetStartSellVisible(Phase == GamePhase.PrepareShop && !_shopUi.ModalOpen && !_shopUi.ResultOpen);
-    }
+    // ---- 开店页面：仓库 + 鱼护 + 价格板 同开同关（准备开店阶段不可关闭、不可拖动、鱼护无关闭按钮） ----
 
-    // ---- 鱼店开关（点鱼店 = 仓库 + 价格板 一起开/关） ----
+    private WarehouseButton? FishKeepButton => _fishKeepSprite as WarehouseButton;
 
-    /// <summary>点击鱼店：仓库与价格板一起打开；已经打开着就一起关闭。只在准备开店阶段有效。</summary>
-    public void ToggleShopPanels()
+    /// <summary>打开开店页面：仓库 + 鱼护 + 价格板一起开，并锁定两者（不可拖动、隐藏关闭按钮）。</summary>
+    private void OpenShopPage()
     {
-        if (Phase != GamePhase.PrepareShop) return;
-        if (_shopWarehouse == null || !IsInstanceValid(_shopWarehouse))
-        {
-            GD.PushWarning("[MainStage] 鱼店还没接 ShopWarehouse（挂 WarehouseButton 的仓库节点）。");
-            return;
-        }
-        if (_shopWarehouse.IsOpen)
-        {
-            _shopWarehouse.Close();
-            _shopUi?.ClosePriceBoard();
-            return;
-        }
-        _shopWarehouse.Open();
+        if (_shopWarehouse != null && IsInstanceValid(_shopWarehouse)) _shopWarehouse.Open();
+        if (FishKeepButton is { } keep && IsInstanceValid(keep)) keep.Open();
         _shopUi?.OpenPriceBoard(BuildPriceRows());
+        LockShopPanels(true);
     }
 
-    /// <summary>价格面板被玩家关掉（面板上的关闭按钮）→ 仓库也一起关（两者同开同关）。</summary>
-    private void OnPriceBoardClosedByUser()
+    /// <summary>关闭开店页面（离开准备开店/开始卖鱼时程序调用）：关面板 + 解锁。</summary>
+    private void CloseShopPage()
     {
-        if (_shopWarehouse is { IsOpen: true } && IsInstanceValid(_shopWarehouse)) _shopWarehouse.Close();
-        RefreshShopHud();
+        if (_shopWarehouse != null && IsInstanceValid(_shopWarehouse)) _shopWarehouse.Close();
+        if (FishKeepButton is { } keep && IsInstanceValid(keep)) keep.Close();
+        _shopUi?.ClosePriceBoard();
+        LockShopPanels(false);
+    }
+
+    /// <summary>锁定/解锁 仓库与鱼护视图：锁定 = 不可整仓拖动 + 关闭按钮隐藏（放置/拾取仍可用）。</summary>
+    private void LockShopPanels(bool locked)
+    {
+        if (_shopWarehouse?.View is { } w && IsInstanceValid(w)) w.SetLocked(locked);
+        if (FishKeepButton?.View is { } k && IsInstanceValid(k)) k.SetLocked(locked);
     }
 
     /// <summary>仓库内容变化时（拿起/放下/钓上等）如果价格板开着，就重建行（已填价格存在 SaveManager 里不会丢）。</summary>
@@ -242,13 +237,12 @@ public sealed partial class MainStage
         SaveManager.LastSellSeed = seed;
 
         SetPhase(GamePhase.Selling);   // 过程态（不落盘）
-        _shopUi?.ClosePriceBoard();
+        CloseShopPage();               // 开店页面收掉（仓库 + 鱼护 + 价格板）
         var result = SellService.Run(lots, customers, MinCustomerCount, MaxCustomerCount, seed);
         ApplySellResult(result);
         _lastSell = result;
 
         _shopUi?.ShowResult(BuildSellSummary(result), BuildSellDetails(result), result.Customers.Count > 0);
-        RefreshShopHud();
     }
 
     /// <summary>把货架上的鱼打包成结算输入（价格取价格板填的标价，价值取物品定义上的 SellPrice）。</summary>
@@ -293,7 +287,6 @@ public sealed partial class MainStage
         _lastSell = null;
         SetPhase(GamePhase.FreeMove);
         _status.Text = Localizer.T("status.freemove");
-        RefreshShopHud();
     }
 
     /// <summary>结算摘要：总收入 + 每种鱼卖出条数与成交额 + 剩余条数。</summary>

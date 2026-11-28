@@ -165,46 +165,50 @@ public sealed partial class TestShop : Node
 
         var exitButton = _stage.FindChild("ExitFishingButton", recursive: true, owned: false) as Button;
         var shopUi = _stage.GetNodeOrNull<ShopUi>("UI/Hud/ShopUi");
-        var startButton = _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/StartSellButton");
-        Check("鱼店流程前置：退出按钮 / 鱼店 UI / 开始卖鱼按钮 存在",
+        var startButton = _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/PricePanel/VBox/StartShopButton");
+        Check("鱼店流程前置：退出按钮 / 鱼店 UI / 「开始开店」按钮 存在",
             exitButton != null && shopUi != null && startButton != null);
         if (exitButton == null || shopUi == null || startButton == null) return;
 
-        Check("开局：Ready + 「开始卖鱼」隐藏", _stage.Phase == Main.MainStage.GamePhase.ReadyFishing && !startButton.Visible);
-
-        exitButton.EmitSignal(BaseButton.SignalName.Pressed);
-        Check("点「退出钓鱼」→ 准备开店，按钮出现",
-            _stage.Phase == Main.MainStage.GamePhase.PrepareShop && startButton.Visible);
-
-        // 找鱼店唯一的仓库（名字 = 仓库），点鱼店把它和价格板一起打开
         var sartineDef = ResourceLoader.Load<FishDef>("res://Data/Fishing/Fish/Sartine.tres");
         Check("沙丁鱼配置可加载（Id=1 / 物品定义可入库）", sartineDef != null && sartineDef.ItemDef != null);
         if (sartineDef?.ItemDef == null) return;
-        var warehouse = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "仓库");
-        Check("场景里有唯一的「仓库」", warehouse != null);
-        if (warehouse == null) return;
 
-        var shop = _stage.GetNodeOrNull<InteractZone>("FishShop");
-        Check("场景里有鱼店（点击开关仓库+价格板）", shop != null);
-        if (shop != null)
+        var warehouse = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "仓库");
+        var keep = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "鱼护");
+        Check("场景里有唯一的「仓库」和「鱼护」", warehouse != null && keep != null);
+        if (warehouse == null || keep == null) return;
+
+        Check("开局：准备钓鱼 + 开店页面未打开",
+            _stage.Phase == Main.MainStage.GamePhase.ReadyFishing
+            && !shopUi.PriceBoardOpen && !warehouse.IsOpen && !keep.IsOpen);
+
+        exitButton.EmitSignal(BaseButton.SignalName.Pressed);
+        Check("点「退出钓鱼」→ 准备开店", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
+        Check("准备开店：开店页面自动打开（仓库 + 鱼护 + 价格板）",
+            warehouse.IsOpen && keep.IsOpen && shopUi.PriceBoardOpen);
+
+        // 准备开店：鱼护不可拖动、关闭按钮隐藏（锁定），但仓库仍可放鱼
+        var keepView = keep.View;
+        Check("准备开店：鱼护已打开有视图", keepView != null);
+        if (keepView != null)
         {
-            ClickWorld(shop.GlobalPosition);
-            Check("点鱼店 → 仓库打开", warehouse.IsOpen);
-            Check("点鱼店 → 价格板一起打开", shopUi.PriceBoardOpen);
-            ClickWorld(shop.GlobalPosition);
-            Check("再点鱼店 → 仓库关闭", !warehouse.IsOpen);
-            Check("再点鱼店 → 价格板一起关闭", !shopUi.PriceBoardOpen);
+            var keepClose = keepView.GetNodeOrNull<TextureButton>("CloseButton");
+            Check("准备开店：鱼护的关闭按钮隐藏",
+                keepClose != null && !keepClose.Visible);
+            var beforePos = keepView.Position;
+            keepView.StartDrag(Vector2.Zero);
+            keepView.MoveDragTo(new Vector2(600, 600));
+            Check("准备开店：鱼护不可拖动", keepView.Position == beforePos);
         }
 
-        // 打开仓库放一条沙丁鱼进去（物品 → 鱼 注册表要认得）
-        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);
         var view = warehouse.View;
         Check("仓库打开后有视图", view != null);
         if (view == null) return;
         var fishItem = sartineDef.ItemDef.ToItem();
         Check("把沙丁鱼放进仓库", view.Inventory.TryPlace(fishItem, Vector2I.Zero).Outcome == PlaceOutcome.Success);
 
-        // 未标价 → 点「开始卖鱼」弹只能关闭的警告，阶段不变
+        // 未标价 → 点「开始开店」弹只能关闭的警告，阶段不变
         startButton.EmitSignal(BaseButton.SignalName.Pressed);
         var warnClose = _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/WarnOverlay/Center/Panel/VBox/CloseButton");
         Check("未标价：弹出警告、阶段仍是准备开店",
@@ -212,43 +216,29 @@ public sealed partial class TestShop : Node
         Check("未标价：警告只有一个关闭按钮", warnClose != null);
         warnClose?.EmitSignal(BaseButton.SignalName.Pressed);
 
-        // 关掉再打开鱼店 → 价格面板按当前仓库里的鱼重建（1 行）
-        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);   // 关
-        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);   // 开
-        var rows = _stage.GetNodeOrNull<VBoxContainer>("UI/Hud/ShopUi/PricePanel/VBox/Scroll/Rows");
-        Check("价格面板：仓库里只有 1 种鱼 → 1 行", shopUi.PriceBoardOpen && rows != null && rows.GetChildCount() == 1);
-
-        // 填价（模拟输入框只收数字：直接写定价，等价于玩家输入），再关掉鱼店
+        // 填价（等价于玩家在价格板输入），再点「开始开店」
         SaveManager.ShopPrices[sartineDef.Id] = 40;
-        ClickWorld(shop?.GlobalPosition ?? Vector2.Zero);
-        Check("再点鱼店：仓库与价格板都关闭", !warehouse.IsOpen && !shopUi.PriceBoardOpen);
 
-        // 鱼护里还有鱼 → 点「开始卖鱼」先弹是/否确认；点「否」不进入卖鱼
-        var keep = WarehouseButton.All.FirstOrDefault(b => b.StorageDef?.DisplayName == "鱼护");
-        Check("场景里的鱼护（原宝箱）叫「鱼护」", keep != null);
-        if (keep != null)
-        {
-            keep.Open();
-            var keepView = keep.View;
-            var strayFish = sartineDef.ItemDef.ToItem();
-            Check("往鱼护里放一条鱼", keepView != null
-                && keepView.Inventory.TryPlace(strayFish, Vector2I.Zero).Outcome == PlaceOutcome.Success);
+        // 鱼护里还有鱼 → 点「开始开店」先弹是/否确认；点「否」不进入卖鱼
+        var keepView2 = keep.View;
+        var strayFish = sartineDef.ItemDef.ToItem();
+        Check("往鱼护里放一条鱼", keepView2 != null
+            && keepView2.Inventory.TryPlace(strayFish, Vector2I.Zero).Outcome == PlaceOutcome.Success);
+        startButton.EmitSignal(BaseButton.SignalName.Pressed);
+        var noButton = _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/ConfirmOverlay/Center/Panel/VBox/Buttons/NoButton");
+        Check("鱼护有鱼：弹出是/否确认、阶段不变",
+            shopUi.ModalOpen && _stage.Phase == Main.MainStage.GamePhase.PrepareShop && noButton != null);
+        noButton?.EmitSignal(BaseButton.SignalName.Pressed);
+        Check("确认弹窗点「否」：不进入卖鱼", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
 
-            startButton.EmitSignal(BaseButton.SignalName.Pressed);
-            var noButton = _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/ConfirmOverlay/Center/Panel/VBox/Buttons/NoButton");
-            Check("鱼护有鱼：弹出是/否确认、阶段不变",
-                shopUi.ModalOpen && _stage.Phase == Main.MainStage.GamePhase.PrepareShop && noButton != null);
-            noButton?.EmitSignal(BaseButton.SignalName.Pressed);
-            Check("确认弹窗点「否」：不进入卖鱼", _stage.Phase == Main.MainStage.GamePhase.PrepareShop);
-
-            // 把这条鱼拿掉（等价玩家把它放进仓库），再卖
-            if (keepView != null) keepView.Inventory.RemoveItem(strayFish);
-            keep.Close();
-        }
+        // 把这条鱼拿掉（等价玩家把它放进仓库），再卖
+        if (keepView2 != null) keepView2.Inventory.RemoveItem(strayFish);
 
         // 鱼护（FishKeep）里没有鱼 → 直接开始卖鱼
         startButton.EmitSignal(BaseButton.SignalName.Pressed);
         Check("鱼护没鱼：直接进入卖鱼", _stage.Phase == Main.MainStage.GamePhase.Selling);
+        Check("开始卖鱼：开店页面关闭（仓库/鱼护/价格板收起）",
+            !warehouse.IsOpen && !keep.IsOpen && !shopUi.PriceBoardOpen);
         Check("结算结果已生成", _stage.LastSellResult != null);
         var result = _stage.LastSellResult;
         Check("结算：金币到账 = 总收入", SaveManager.Money == (result?.TotalIncome ?? -1));
@@ -274,7 +264,6 @@ public sealed partial class TestShop : Node
         _stage.GetNodeOrNull<Button>("UI/Hud/ShopUi/ResultPanel/VBox/CloseButton")
             ?.EmitSignal(BaseButton.SignalName.Pressed);
         Check("点「结束」→ 进入自由移动", _stage.Phase == Main.MainStage.GamePhase.FreeMove);
-        Check("自由移动：「开始卖鱼」按钮隐藏", !startButton.Visible);
         Check("自由移动阶段随存档保存", SaveManager.Phase == SavePhase.FreeMove);
 
         // 自由移动阶段：走回钓鱼点坐下 → Ready，鱼护自动搬回钓鱼区

@@ -290,6 +290,7 @@ public sealed partial class MainStage : Node2D
         //  新游戏 / 直接运行主关卡 = 自由移动；存档在鱼店 = 准备开店；存档坐在椅子上 = 准备钓鱼。
         SetPhase(FromSavePhase(SaveManager.Phase));
         if (Phase == GamePhase.FreeMove) _status.Text = Localizer.T("status.freemove");
+        if (Phase == GamePhase.PrepareShop) OpenShopPage();   // 存档在准备开店 → 读档自动打开开店页面
         RefreshButtons();
     }
 
@@ -710,16 +711,9 @@ public sealed partial class MainStage : Node2D
             GetViewport().SetInputAsHandled();
             // 正在钓鱼（蓄力开始 → 钓上/一竿结束）：点击仓库按钮被吞掉，开关仓库全部禁止
             // （否则钓鱼过程中误点宝箱会弹出仓库，打断操作）。一竿结束回到 Ready 后恢复。
-            if (Phase == GamePhase.Fishing) return;
+            // 准备开店：仓库/鱼护由开店页面统一开，也不许玩家点图标关掉（只能放鱼 + 改价）。
+            if (Phase is GamePhase.Fishing or GamePhase.PrepareShop) return;
             btn.Toggle();   // 各按钮开/关它自己配置的那座仓库
-            return;
-        }
-
-        // 准备开店阶段：点鱼店 = 仓库 + 价格板 一起开/关（在仓库按钮之后、仓库模态之前）。
-        if (Phase == GamePhase.PrepareShop && _fishShop != null && _fishShop.IsPointInside(canvasPoint))
-        {
-            GetViewport().SetInputAsHandled();
-            ToggleShopPanels();
             return;
         }
 
