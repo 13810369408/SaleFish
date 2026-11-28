@@ -337,7 +337,8 @@ public sealed partial class TestMainStage : Node
 
         // ---- 前置：视图交互区已覆盖到背景盒（Bug-2 回归：背景盒边缘不再被当成「仓库外」） ----
         var boxGrab = new Vector2(820, 640);   // 视图本地：主背包背景盒右下边缘（格子区 (81..753,159..579) 以外）
-        Check("规则3·视图覆盖到背景盒（点盒子边缘不落入关闭逻辑）", w != null && w.GetRect().HasPoint(boxGrab));
+        Check("规则3·视图覆盖到背景盒（点盒子边缘不落入关闭逻辑）",
+            w != null && w.Size.X > boxGrab.X && w.Size.Y > boxGrab.Y);   // 视图尺寸须覆盖背景盒（与面板位置无关）
 
         // ---- B. 规则 1：空手点到放置物 → 拾起 ----
         var marker = w!.Inventory.GetItemAt(new Vector2I(2, 0));   // 前序「标识物品」留下的 1×1

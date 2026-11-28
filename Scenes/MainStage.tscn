@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/SitFishTooltip.tscn" id="22_sittip"]
 [ext_resource type="Resource" path="res://Data/Inventory/Storage/Warehouse1.tres" id="25_wh1"]
 [ext_resource type="Script" uid="uid://bglqvifgx3n8k" path="res://Scripts/Common/InteractZone.cs" id="31_interact"]
-[ext_resource type="PackedScene" path="res://Scenes/ShopUi.tscn" id="32_shopui"]
+[ext_resource type="PackedScene" uid="uid://bfuqecabcitlw" path="res://Scenes/ShopUi.tscn" id="32_shopui"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_shopdetect"]
 size = Vector2(280, 320)
@@ -56,7 +56,7 @@ scale = Vector2(6, 6)
 texture = ExtResource("6_8ie50")
 
 [node name="WarehouseAnchor" type="Marker2D" parent="." unique_id=827364512]
-position = Vector2(-491, -43)
+position = Vector2(314, -364)
 
 [node name="FishKeep" type="Sprite2D" parent="." unique_id=436649623]
 position = Vector2(45, 94)
@@ -96,10 +96,6 @@ position = Vector2(-520, 71)
 script = ExtResource("18_whbtn")
 Storage = ExtResource("25_wh1")
 UiHostPath = NodePath("../UI/Hud")
-WarehouseAnchorPath = NodePath("../ShopWarehouseAnchor")
-
-[node name="ShopWarehouseAnchor" type="Marker2D" parent="." unique_id=1509336675]
-position = Vector2(-420, 0)
 
 [node name="Water" type="Area2D" parent="." unique_id=436649624]
 position = Vector2(6285, 773)

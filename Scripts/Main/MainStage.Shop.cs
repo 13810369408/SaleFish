@@ -128,20 +128,38 @@ public sealed partial class MainStage
 
     private WarehouseButton? FishKeepButton => _fishKeepSprite as WarehouseButton;
 
-    /// <summary>打开开店页面：仓库 + 鱼护 + 价格板一起开，并锁定两者（不可拖动、隐藏关闭按钮）。</summary>
+    /// <summary>打开开店页面：仓库 + 鱼护 + 价格板一起开，并锁定两者（不可拖动、隐藏关闭按钮）。
+    /// 两个面板的位置由 ShopUi（<see cref="ShopUi.ShopWarehousePanelPosition"/>/<see cref="ShopUi.KeepNetPanelPosition"/>）指定。</summary>
     private void OpenShopPage()
     {
-        if (_shopWarehouse != null && IsInstanceValid(_shopWarehouse)) _shopWarehouse.Open();
-        if (FishKeepButton is { } keep && IsInstanceValid(keep)) keep.Open();
+        var pos = _shopUi;
+        if (_shopWarehouse != null && IsInstanceValid(_shopWarehouse))
+        {
+            _shopWarehouse.SetForcedPosition(pos?.ShopWarehousePanelPosition);
+            _shopWarehouse.Open();
+        }
+        if (FishKeepButton is { } keep && IsInstanceValid(keep))
+        {
+            keep.SetForcedPosition(pos?.KeepNetPanelPosition);
+            keep.Open();
+        }
         _shopUi?.OpenPriceBoard(BuildPriceRows());
         LockShopPanels(true);
     }
 
-    /// <summary>关闭开店页面（离开准备开店/开始卖鱼时程序调用）：关面板 + 解锁。</summary>
+    /// <summary>关闭开店页面（离开准备开店/开始卖鱼时程序调用）：关面板 + 解锁 + 取消强制定位。</summary>
     private void CloseShopPage()
     {
-        if (_shopWarehouse != null && IsInstanceValid(_shopWarehouse)) _shopWarehouse.Close();
-        if (FishKeepButton is { } keep && IsInstanceValid(keep)) keep.Close();
+        if (_shopWarehouse != null && IsInstanceValid(_shopWarehouse))
+        {
+            _shopWarehouse.Close();
+            _shopWarehouse.SetForcedPosition(null);
+        }
+        if (FishKeepButton is { } keep && IsInstanceValid(keep))
+        {
+            keep.Close();
+            keep.SetForcedPosition(null);
+        }
         _shopUi?.ClosePriceBoard();
         LockShopPanels(false);
     }

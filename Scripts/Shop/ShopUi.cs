@@ -20,6 +20,12 @@ public sealed partial class ShopUi : Control
     /// <summary>价格板里的一行（鱼种）：名字 + 图鉴里的历史最高成交价（没卖过 = null）。</summary>
     public readonly record struct PriceRow(long FishId, string Name, int? HistoricalPrice);
 
+    /// <summary>准备开店时「仓库」面板左上角的屏幕位置（UI/Hud 本地坐标）。在 ShopUi 检查器里直接填/调。</summary>
+    [Export] public Vector2 ShopWarehousePanelPosition = new(120f, 204f);
+
+    /// <summary>准备开店时「鱼护」面板左上角的屏幕位置（UI/Hud 本地坐标）。与钓鱼区的鱼护位置（MainStage 锚点）分开。</summary>
+    [Export] public Vector2 KeepNetPanelPosition = new(49f, 161f);
+
     private Panel _pricePanel = null!;
     private VBoxContainer _priceRows = null!;
     private Panel _resultPanel = null!;

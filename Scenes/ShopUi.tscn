@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bfuqecabcitlw"]
 
-[ext_resource type="Script" path="res://Scripts/Shop/ShopUi.cs" id="1_shopui"]
-[ext_resource type="Script" path="res://Scripts/Localization/LocalizedText.cs" id="2_loc"]
+[ext_resource type="Script" uid="uid://bhg27gxhdxsd8" path="res://Scripts/Shop/ShopUi.cs" id="1_shopui"]
+[ext_resource type="Script" uid="uid://d0wbuf6h68teh" path="res://Scripts/Localization/LocalizedText.cs" id="2_loc"]
 
-[node name="ShopUi" type="Control"]
+[node name="ShopUi" type="Control" unique_id=1716973948]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,9 +13,10 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_shopui")
 
-[node name="PricePanel" type="Panel" parent="."]
+[node name="PricePanel" type="Panel" parent="." unique_id=1627514603]
 visible = false
 layout_mode = 1
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -25,7 +26,7 @@ offset_top = -360.0
 offset_right = 900.0
 offset_bottom = 360.0
 
-[node name="VBox" type="VBoxContainer" parent="PricePanel"]
+[node name="VBox" type="VBoxContainer" parent="PricePanel" unique_id=1377630573]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -38,40 +39,41 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 14
 
-[node name="Title" type="Label" parent="PricePanel/VBox"]
+[node name="Title" type="Label" parent="PricePanel/VBox" unique_id=2044839746]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
 theme_override_font_sizes/font_size = 34
 text = "价格板"
 horizontal_alignment = 1
 
-[node name="LocalizedText" type="Node" parent="PricePanel/VBox/Title"]
+[node name="LocalizedText" type="Node" parent="PricePanel/VBox/Title" unique_id=423847917]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.price.title"
 
-[node name="Scroll" type="ScrollContainer" parent="PricePanel/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="PricePanel/VBox" unique_id=1958560829]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Rows" type="VBoxContainer" parent="PricePanel/VBox/Scroll"]
+[node name="Rows" type="VBoxContainer" parent="PricePanel/VBox/Scroll" unique_id=1440508558]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="StartShopButton" type="Button" parent="PricePanel/VBox"]
+[node name="StartShopButton" type="Button" parent="PricePanel/VBox" unique_id=477157648]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "开始开店"
 
-[node name="LocalizedText" type="Node" parent="PricePanel/VBox/StartShopButton"]
+[node name="LocalizedText" type="Node" parent="PricePanel/VBox/StartShopButton" unique_id=1059668450]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.start_open"
 
-[node name="ResultPanel" type="Panel" parent="."]
+[node name="ResultPanel" type="Panel" parent="." unique_id=1877250324]
 visible = false
 layout_mode = 1
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -81,7 +83,7 @@ offset_top = -400.0
 offset_right = 470.0
 offset_bottom = 400.0
 
-[node name="VBox" type="VBoxContainer" parent="ResultPanel"]
+[node name="VBox" type="VBoxContainer" parent="ResultPanel" unique_id=256035110]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -94,57 +96,57 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 14
 
-[node name="Title" type="Label" parent="ResultPanel/VBox"]
+[node name="Title" type="Label" parent="ResultPanel/VBox" unique_id=1673995819]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
 theme_override_font_sizes/font_size = 34
 text = "结算"
 horizontal_alignment = 1
 
-[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/Title"]
+[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/Title" unique_id=1758864907]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.result.title"
 
-[node name="Summary" type="Label" parent="ResultPanel/VBox"]
+[node name="Summary" type="Label" parent="ResultPanel/VBox" unique_id=581181545]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = ""
 autowrap_mode = 3
 
-[node name="DetailButton" type="Button" parent="ResultPanel/VBox"]
+[node name="DetailButton" type="Button" parent="ResultPanel/VBox" unique_id=1606729259]
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "详细信息"
 
-[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/DetailButton"]
+[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/DetailButton" unique_id=1415601562]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.result.detail"
 
-[node name="DetailScroll" type="ScrollContainer" parent="ResultPanel/VBox"]
+[node name="DetailScroll" type="ScrollContainer" parent="ResultPanel/VBox" unique_id=34074802]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="DetailText" type="VBoxContainer" parent="ResultPanel/VBox/DetailScroll"]
+[node name="DetailText" type="VBoxContainer" parent="ResultPanel/VBox/DetailScroll" unique_id=1588159201]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="CloseButton" type="Button" parent="ResultPanel/VBox"]
+[node name="CloseButton" type="Button" parent="ResultPanel/VBox" unique_id=312823319]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "结束"
 
-[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/CloseButton"]
+[node name="LocalizedText" type="Node" parent="ResultPanel/VBox/CloseButton" unique_id=1816737256]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.result.close"
 
-[node name="ConfirmOverlay" type="Control" parent="."]
+[node name="ConfirmOverlay" type="Control" parent="." unique_id=1155536797]
 visible = false
+z_index = 10
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -152,7 +154,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Dim" type="ColorRect" parent="ConfirmOverlay"]
+[node name="Dim" type="ColorRect" parent="ConfirmOverlay" unique_id=1225450955]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -161,7 +163,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.55)
 
-[node name="Center" type="CenterContainer" parent="ConfirmOverlay"]
+[node name="Center" type="CenterContainer" parent="ConfirmOverlay" unique_id=1514885030]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -169,11 +171,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="Panel" parent="ConfirmOverlay/Center"]
+[node name="Panel" type="Panel" parent="ConfirmOverlay/Center" unique_id=2009470522]
 custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="ConfirmOverlay/Center/Panel"]
+[node name="VBox" type="VBoxContainer" parent="ConfirmOverlay/Center/Panel" unique_id=641207737]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -186,40 +188,40 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="Prompt" type="Label" parent="ConfirmOverlay/Center/Panel/VBox"]
+[node name="Prompt" type="Label" parent="ConfirmOverlay/Center/Panel/VBox" unique_id=1345022145]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = ""
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="Buttons" type="HBoxContainer" parent="ConfirmOverlay/Center/Panel/VBox"]
+[node name="Buttons" type="HBoxContainer" parent="ConfirmOverlay/Center/Panel/VBox" unique_id=514780574]
 layout_mode = 2
 theme_override_constants/separation = 40
 alignment = 1
 
-[node name="YesButton" type="Button" parent="ConfirmOverlay/Center/Panel/VBox/Buttons"]
+[node name="YesButton" type="Button" parent="ConfirmOverlay/Center/Panel/VBox/Buttons" unique_id=1369767105]
 custom_minimum_size = Vector2(180, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "确认"
 
-[node name="LocalizedText" type="Node" parent="ConfirmOverlay/Center/Panel/VBox/Buttons/YesButton"]
+[node name="LocalizedText" type="Node" parent="ConfirmOverlay/Center/Panel/VBox/Buttons/YesButton" unique_id=422772687]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.confirm.yes"
 
-[node name="NoButton" type="Button" parent="ConfirmOverlay/Center/Panel/VBox/Buttons"]
+[node name="NoButton" type="Button" parent="ConfirmOverlay/Center/Panel/VBox/Buttons" unique_id=267018274]
 custom_minimum_size = Vector2(180, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "取消"
 
-[node name="LocalizedText" type="Node" parent="ConfirmOverlay/Center/Panel/VBox/Buttons/NoButton"]
+[node name="LocalizedText" type="Node" parent="ConfirmOverlay/Center/Panel/VBox/Buttons/NoButton" unique_id=2124064575]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.confirm.no"
 
-[node name="WarnOverlay" type="Control" parent="."]
+[node name="WarnOverlay" type="Control" parent="." unique_id=830759100]
 visible = false
+z_index = 10
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -227,7 +229,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Dim" type="ColorRect" parent="WarnOverlay"]
+[node name="Dim" type="ColorRect" parent="WarnOverlay" unique_id=678551199]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -236,7 +238,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.55)
 
-[node name="Center" type="CenterContainer" parent="WarnOverlay"]
+[node name="Center" type="CenterContainer" parent="WarnOverlay" unique_id=1863637978]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -244,11 +246,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="Panel" parent="WarnOverlay/Center"]
+[node name="Panel" type="Panel" parent="WarnOverlay/Center" unique_id=689493954]
 custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="WarnOverlay/Center/Panel"]
+[node name="VBox" type="VBoxContainer" parent="WarnOverlay/Center/Panel" unique_id=866284368]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -261,20 +263,19 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="Message" type="Label" parent="WarnOverlay/Center/Panel/VBox"]
+[node name="Message" type="Label" parent="WarnOverlay/Center/Panel/VBox" unique_id=944686741]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = ""
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="CloseButton" type="Button" parent="WarnOverlay/Center/Panel/VBox"]
+[node name="CloseButton" type="Button" parent="WarnOverlay/Center/Panel/VBox" unique_id=922174148]
 custom_minimum_size = Vector2(180, 56)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "关闭"
 
-[node name="LocalizedText" type="Node" parent="WarnOverlay/Center/Panel/VBox/CloseButton"]
+[node name="LocalizedText" type="Node" parent="WarnOverlay/Center/Panel/VBox/CloseButton" unique_id=1896673726]
 script = ExtResource("2_loc")
 LocalizationKey = "shop.close"

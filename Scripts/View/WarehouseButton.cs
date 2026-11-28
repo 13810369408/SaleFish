@@ -39,6 +39,10 @@ public sealed partial class WarehouseButton : Sprite2D
     /// <summary>下次打开的位置（UI 宿主本地坐标，面板左上角）；null = 尚未打开/未拖拽 → 用锚点推导。</summary>
     private Vector2? _lastOpenPos;
 
+    /// <summary>强制定位（如准备开店阶段由 ShopUi 指定面板位置）：非 null 时打开/关闭都按它，
+    /// 且**不写 <see cref="_lastOpenPos"/>**——这样不会污染钓鱼区自己的拖拽记忆位置。</summary>
+    private Vector2? _forcedPosition;
+
     /// <summary>锚点推导的「打开中心」兜底（UI 宿主本地坐标）：在 _Ready（相机休息位）预计算并缓存——
     /// 避免钓上自动开仓时相机正随鱼钩走远，把世界锚点经当前画布变换映射到屏幕外（仓库偏到最左边）。
     /// 拖拽/关闭后由 _lastOpenPos 接管，此值只在首次打开（无已记住位置）时兜底。</summary>
@@ -77,6 +81,10 @@ public sealed partial class WarehouseButton : Sprite2D
         _view.Position = uiLocalPos;
         _lastOpenPos = uiLocalPos;
     }
+
+    /// <summary>强制定位（准备开店阶段由 ShopUi 指定面板位置）：传 null 取消。
+    /// 强制期间打开/关闭都用该位置，且不改动拖拽记忆 <c>_lastOpenPos</c>。</summary>
+    public void SetForcedPosition(Vector2? position) => _forcedPosition = position;
 
     private void Register()
     {
@@ -166,7 +174,7 @@ public sealed partial class WarehouseButton : Sprite2D
 
         _view.ExpandToBackground(_storageDef);                // 交互区覆盖到背景盒（点背景也能拖/不误关仓）
         _view.Position = ResolveOpenPosition();
-        _lastOpenPos = _view.Position;                // 记住（下次/重建优先用它）
+        if (!_forcedPosition.HasValue) _lastOpenPos = _view.Position;   // 强制定位时不污染拖拽记忆
         Opened?.Invoke();
     }
 
@@ -175,7 +183,7 @@ public sealed partial class WarehouseButton : Sprite2D
     {
         if (_view == null || !GodotObject.IsInstanceValid(_view)) return;
         if (!_view.Visible) return;
-        _lastOpenPos = _view.Position;
+        if (!_forcedPosition.HasValue) _lastOpenPos = _view.Position;   // 强制定位时不污染拖拽记忆
         _view.Hide();
         Closed?.Invoke();
     }
@@ -195,9 +203,10 @@ public sealed partial class WarehouseButton : Sprite2D
         Moved?.Invoke();
     }
 
-    /// <summary>本次打开位置：记忆位置（含拖拽结果）优先；没有则按锚点/屏幕中心推导。</summary>
+    /// <summary>本次打开位置：强制定位优先（准备开店）；其次记忆位置（含拖拽结果）；最后锚点/屏幕中心推导。</summary>
     private Vector2 ResolveOpenPosition()
     {
+        if (_forcedPosition.HasValue) return _forcedPosition.Value;
         if (_lastOpenPos.HasValue) return _lastOpenPos.Value;
         if (_view == null) return Vector2.Zero;
         ComputeFallbackCenter();   // 兜底：_Ready 没算出来就现在算（_Ready 优先，保证相机在休息位）
